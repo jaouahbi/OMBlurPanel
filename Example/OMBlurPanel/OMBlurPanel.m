@@ -68,10 +68,11 @@ alpha:1.0]
    return (self.effectView != nil);
 }
 
--(void) close:(UIView*) sourceView  block:(void (^)(void))block {
-    // reverse
-    UIView * targetView  = self;
-    CGFloat circleRadius = targetView.bounds.size.height;
+-(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block {
+    //
+    // Morphing the UIView (reverse).
+    //
+    CGFloat circleRadius = targetFrame.size.height;
     [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:1.0 delegate:nil block:^{
         [self.effectView removeFromSuperview];
         self.effectView  = nil;
@@ -81,12 +82,13 @@ alpha:1.0]
     }];
 }
 
--(void) open:(UIView*) sourceView   block:(void (^)(void))block {
+-(void) open:(UIView*) sourceView  targetFrame:(CGRect)targetFrame block:(void (^)(void))block {
     //
     // Morphing the UIView.
     //
+    self.frame = targetFrame;
     self.effectView = [self addViewWithBlur:self.contentView style:UIBlurEffectStyleDark addConstrainst:YES];
-    CGFloat circleRadius =  self.effectView.bounds.size.height;
+    CGFloat circleRadius = targetFrame.size.height;
     [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:1.0 delegate:nil block:block];
 }
 @end

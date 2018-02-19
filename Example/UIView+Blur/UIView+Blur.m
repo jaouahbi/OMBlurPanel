@@ -7,6 +7,7 @@
 //
 
 #import "UIView+Blur.h"
+#import "OMCustomIntensityVisualEffectView.h"
 
 @implementation UIView(Blur)
 
@@ -14,13 +15,13 @@
 {
     // Blur effect
     UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:style];
-    UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    OMCustomIntensityVisualEffectView *blurEffectView = [[OMCustomIntensityVisualEffectView alloc] initWithEffect:blurEffect intensity:1.0];
     [blurEffectView setFrame:self.bounds];
     [self addSubview:blurEffectView];
     
     // Vibrancy effect
     UIVibrancyEffect *vibrancyEffect = [UIVibrancyEffect effectForBlurEffect:blurEffect];
-    UIVisualEffectView *vibrancyEffectView = [[UIVisualEffectView alloc] initWithEffect:vibrancyEffect];
+    OMCustomIntensityVisualEffectView *vibrancyEffectView = [[OMCustomIntensityVisualEffectView alloc] initWithEffect:vibrancyEffect intensity:1.0];
     [vibrancyEffectView setFrame:self.bounds];
 
     UIView * contentView = [blurEffectView contentView];
