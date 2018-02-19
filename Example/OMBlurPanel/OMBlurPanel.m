@@ -32,19 +32,16 @@
 -(void) layoutSubviews {
     [super layoutSubviews];
     
-    if (self.gradient != nil) {
-        [self.gradient removeFromSuperlayer];
-        self.gradient = nil;
+    if (self.gradient == nil) {
+        self.gradient = [CAGradientLayer layer];
+        [self.contentView.layer insertSublayer:self.gradient atIndex:0];
     }
     
-    self.gradient = [CAGradientLayer layer];
     self.gradient.frame = self.contentView.frame;
-    
     self.gradient.startPoint = CGPointMake(1, 0);
     self.gradient.endPoint   = CGPointMake(0, 1);
     
     NSMutableArray * colorsCG = [NSMutableArray array];
-    
     for (UIColor * color in _gradientColors) {
         if ([color isKindOfClass:[UIColor class]]) {
             [colorsCG addObject:(id)color.CGColor];
@@ -52,9 +49,11 @@
             [colorsCG addObject:(id)color];
         }
     }
+    self.gradient.colors = colorsCG;;
+    self.contentView.layer.borderColor = [[UIColor redColor] CGColor];
+    self.contentView.layer.borderWidth = 2;
     
-    self.gradient.colors = colorsCG;
-    [self.contentView.layer insertSublayer:self.gradient atIndex:0];
+    
 }
 
 -(NSArray*) colors {
@@ -75,13 +74,13 @@
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    //
-    // Morphing the UIView (reverse).
-    //
     
     if (_delegate != nil) {
         [_delegate willClosePanel:self];
     }
+    //
+    // Morphing the UIView (reverse).
+    //
     
     CGFloat circleRadius = targetFrame.size.height;
     [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:1.0 delegate:nil block:^{
@@ -101,14 +100,14 @@
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    
-    if(sourceView == nil) return;
-    //
-    // Morphing the UIView.
-    //
+
     if (_delegate != nil) {
         [_delegate willOpenPanel:self];
     }
+  
+    //
+    // Morphing the UIView.
+    //
     
     self.frame = targetFrame;
     self.effectView = [self addViewWithBlur:self.contentView style:UIBlurEffectStyleDark addConstrainst:YES];
@@ -122,4 +121,6 @@
         }
     }];
 }
+
+
 @end
