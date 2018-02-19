@@ -219,33 +219,36 @@ alpha:1.0]
         
         
         UIImage* backgroundImage = [UIImage imageNamed:@"closeButton"];
-        CGSize backgroundImageSize = CGSizeMake(65, 65);
+        CGSize closeButtonSize = CGSizeMake(18 * 1.3, 9  * 1.3);
         [self.buttonClose setBackgroundImage:backgroundImage forState:UIControlStateNormal];
-        CGRect buttonFrame = CGRectMake(0, 0, backgroundImageSize.width, backgroundImageSize.height);
+        CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
         [self.buttonClose setFrame:buttonFrame];
         [self.buttonClose addTarget:self action:@selector(didCloseTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
         [self.buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
         
         
         UIView * view = self.buttonClose;
-        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", backgroundImageSize.width]
+        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", closeButtonSize.width]
                                                                              options:0
                                                                              metrics:nil
                                                                                views:NSDictionaryOfVariableBindings(view)];
         
-        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", backgroundImageSize.height]
+        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", closeButtonSize.height]
                                                                               options:0
                                                                               metrics:nil
                                                                                 views:NSDictionaryOfVariableBindings(view)];
 
-        [self.panelView.contentView addSubview:self.buttonClose];
+        [self.panelView.contentView addSubview:view];
+        
+        
+        [self.panelView.contentView addConstraints:fixedWidthButton];
+        [self.panelView.contentView addConstraints:fixedHeightButton];
         
         //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
         
-        
-        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:_floatingButton attribute:NSLayoutAttributeCenterX
+        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
                                                                                relatedBy:NSLayoutRelationEqual
-                                                                                  toItem:_floatingButton.superview
+                                                                                  toItem:view.superview
                                                                                attribute:NSLayoutAttributeCenterX
                                                                               multiplier:1.0
                                                                                 constant:0];
