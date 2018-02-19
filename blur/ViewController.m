@@ -1,17 +1,20 @@
 //
-//  ViewController.m
-//  blur
+//  OMBlurPanel.m
+//  OMBlurPanel
 //
-//  Created by io on 17/2/18.
-//  Copyright © 2018 io. All rights reserved.
+//  Created by Jorge Ouahbi on 19/2/18.
+//  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
 #import "ViewController.h"
-#include "UIView+Blur.h"
+#include "OMBlurPanel.h"
+#include "UIView+AnimationCircleWithMask.h"
+
+
 @interface ViewController ()
-{
-    UIWebView *_webView;
-}
+@property(strong,nonatomic) UIWebView * webView;
+@property(strong,nonatomic) UIButton *  floatingButton;
+@property(strong,nonatomic) OMBlurPanel *panelView;
 @end
 
 @implementation ViewController
@@ -20,7 +23,7 @@
     [super viewDidLoad];
     NSString *urlAddress = @"http://www.apple.com";
     _webView=[[UIWebView alloc] initWithFrame:CGRectZero];
-        [self.view addSubview:_webView];
+    [self.view addSubview:_webView];
     
     //add auto layout constraints so that the blur fills the screen upon rotating device
     [_webView setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -65,38 +68,138 @@
 }
 
 
-- (void)viewDidAppear:(BOOL)animated
+-(void) didTouchUpInside:(id)sender
 {
-    [super viewDidAppear:animated];
-    _webView.frame= self.view.bounds;
-    
-    UIView *panelView = [[UIView alloc] initWithFrame:CGRectZero];
-    CAGradientLayer *gradient = [CAGradientLayer layer];
-    gradient.frame = panelView.bounds;
-    UIColor *topColor = [UIColor colorWithRed:0.5 green:0.22 blue:0.36 alpha:1];
-    UIColor *bottomColor = [UIColor colorWithRed:0.38 green:0.18 blue:0.38 alpha:1];
+    [self.panelView open:self.floatingButton block:^{
+        self.floatingButton.hidden = YES;
+    }];
 
-    gradient.colors = @[(id)topColor.CGColor, (id)bottomColor.CGColor];
-    [panelView.layer insertSublayer:gradient atIndex:0];
-    
-    panelView.alpha = 1.0;
-    panelView.layer.masksToBounds = YES;
-    panelView.layer.cornerRadius = 6;
-    UIVisualEffectView * eff = [self.view addViewWithBlur:panelView style:UIBlurEffectStyleDark addConstrainst:YES];
-    [self.view layoutIfNeeded];
-    
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        CGRect r = eff.frame;
-        eff.frame = CGRectMake(0, eff.frame.size.height, eff.frame.size.width, eff.frame.size.height);
-        [UIView animateWithDuration:1.0  delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            CGFloat newHeight  = r.size.height * 0.40;
-            eff.frame = CGRectMake(r.origin.x,  r.size.height  - newHeight, r.size.width, newHeight);
-        } completion:^(BOOL finished) {
-            
-        }];
-    });
 }
+
+
+
+
+-(void) setUpFloatingButton {
+    
+    
+    //
+    // Setup the AURA button.
+    //
+    
+    
+    _floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    
+    
+    UIImage* backgroundImage = [UIImage imageNamed:@"floatingButton"];
+    CGSize backgroundImageSize = CGSizeMake(65, 65);
+    [_floatingButton setBackgroundImage:backgroundImage forState:UIControlStateNormal];
+    CGRect buttonFrame = CGRectMake(0, 0, backgroundImageSize.width, backgroundImageSize.height);
+    [_floatingButton setFrame:buttonFrame];
+    [_floatingButton addTarget:self action:@selector(didTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
+    [_floatingButton setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
+    
+    UIView * view = _floatingButton;
+    NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", backgroundImageSize.width]
+                                                                         options:0
+                                                                         metrics:nil
+                                                                           views:NSDictionaryOfVariableBindings(view)];
+    
+    NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", backgroundImageSize.height]
+                                                                          options:0
+                                                                          metrics:nil
+                                                                            views:NSDictionaryOfVariableBindings(view)];
+    
+    
+    //DBG_BORDER_COLOR(_containerView.layer, [UIColor redColor]);
+    
+    
+    UIWindow * appWindow = [[UIApplication sharedApplication] keyWindow];
+    if (appWindow == nil) {
+        
+        return ;
+    }
+    [appWindow addSubview:_floatingButton];
+    _floatingButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [appWindow addConstraints:fixedWidthButton];
+    [appWindow addConstraints:fixedHeightButton];
+    
+    //
+    // Set the Bottom of the auraButton, and center on X
+    //
+    
+    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:_floatingButton attribute:NSLayoutAttributeCenterX
+                                                                           relatedBy:NSLayoutRelationEqual
+                                                                              toItem:_floatingButton.superview
+                                                                           attribute:NSLayoutAttributeCenterX
+                                                                          multiplier:1.0
+                                                                            constant:0];
+    
+    
+    NSLayoutConstraint * bottonConstrain =  [NSLayoutConstraint constraintWithItem:view
+                                                                         attribute:NSLayoutAttributeBottom
+                                                                         relatedBy:NSLayoutRelationEqual
+                                                                            toItem:view.superview
+                                                                         attribute:NSLayoutAttributeBottom
+                                                                        multiplier:1.0
+                                                                          constant:-20];
+    
+    
+    [appWindow addConstraints:@[centerXConstraint, bottonConstrain]];
+    
+}
+
+-(void) setupPanel {
+    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero];
+    if (self.panelView != nil) {
+        [self.view addSubview:self.panelView];
+        
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+                                                              attribute:NSLayoutAttributeTop
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.view
+                                                              attribute:NSLayoutAttributeTop
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+                                                              attribute:NSLayoutAttributeBottom
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.view
+                                                              attribute:NSLayoutAttributeBottom
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+                                                              attribute:NSLayoutAttributeLeading
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.view
+                                                              attribute:NSLayoutAttributeLeading
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+                                                              attribute:NSLayoutAttributeTrailing
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.view
+                                                              attribute:NSLayoutAttributeTrailing
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        
+        [self.view layoutIfNeeded];
+        
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self setUpFloatingButton];
+    [self setupPanel];
+}
+
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

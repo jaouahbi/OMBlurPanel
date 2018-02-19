@@ -1,9 +1,9 @@
 //
-//  AppDelegate.m
-//  blur
+//  OMBlurPanel.m
+//  OMBlurPanel
 //
-//  Created by io on 17/2/18.
-//  Copyright © 2018 io. All rights reserved.
+//  Created by Jorge Ouahbi on 19/2/18.
+//  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
 #import "AppDelegate.h"

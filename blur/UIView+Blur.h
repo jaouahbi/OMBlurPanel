@@ -1,17 +1,17 @@
 //
-//  OMBlurView.h
-//  blur
+//  OMBlurPanel.m
+//  OMBlurPanel
 //
-//  Created by io on 17/2/18.
-//  Copyright © 2018 io. All rights reserved.
+//  Created by Jorge Ouahbi on 19/2/18.
+//  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
+#import "UIView+AnimationCircleWithMask.h"
+
 @interface UIView(Blur)
 
 -(UIVisualEffectView *)addViewWithBlur:(UIView*) view style:(UIBlurEffectStyle) style addConstrainst:(BOOL)addConstrainst;
--(void)animateFromDownToUpWithFactor:(CGFloat) factor;
 
--(void)animateFrom:(UIView*) view rect:(CGRect)rect duration:(NSTimeInterval) duration;
 @end

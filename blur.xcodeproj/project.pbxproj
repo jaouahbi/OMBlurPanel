@@ -16,6 +16,8 @@
 		C97DDDAF2038D7DE003039AE /* blurTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C97DDDAE2038D7DE003039AE /* blurTests.m */; };
 		C97DDDBA2038D7DF003039AE /* blurUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = C97DDDB92038D7DF003039AE /* blurUITests.m */; };
 		C97DDDC92038D7FA003039AE /* UIView+Blur.m in Sources */ = {isa = PBXBuildFile; fileRef = C97DDDC82038D7FA003039AE /* UIView+Blur.m */; };
+		E95E074E203AE0A300BD8369 /* OMBlurPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E074D203AE0A300BD8369 /* OMBlurPanel.m */; };
+		E95E0751203AF1CE00BD8369 /* UIView+AnimationCircleWithMask.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0750203AF1CD00BD8369 /* UIView+AnimationCircleWithMask.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,10 @@
 		C97DDDBB2038D7DF003039AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C97DDDC72038D7FA003039AE /* UIView+Blur.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Blur.h"; sourceTree = "<group>"; };
 		C97DDDC82038D7FA003039AE /* UIView+Blur.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Blur.m"; sourceTree = "<group>"; };
+		E95E074C203AE0A300BD8369 /* OMBlurPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OMBlurPanel.h; sourceTree = "<group>"; };
+		E95E074D203AE0A300BD8369 /* OMBlurPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OMBlurPanel.m; sourceTree = "<group>"; };
+		E95E074F203AF1CD00BD8369 /* UIView+AnimationCircleWithMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AnimationCircleWithMask.h"; sourceTree = "<group>"; };
+		E95E0750203AF1CD00BD8369 /* UIView+AnimationCircleWithMask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AnimationCircleWithMask.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +110,8 @@
 		C97DDD942038D7DE003039AE /* blur */ = {
 			isa = PBXGroup;
 			children = (
+				E95E074F203AF1CD00BD8369 /* UIView+AnimationCircleWithMask.h */,
+				E95E0750203AF1CD00BD8369 /* UIView+AnimationCircleWithMask.m */,
 				C97DDD952038D7DE003039AE /* AppDelegate.h */,
 				C97DDD962038D7DE003039AE /* AppDelegate.m */,
 				C97DDD982038D7DE003039AE /* ViewController.h */,
@@ -115,6 +123,8 @@
 				C97DDDA42038D7DE003039AE /* main.m */,
 				C97DDDC72038D7FA003039AE /* UIView+Blur.h */,
 				C97DDDC82038D7FA003039AE /* UIView+Blur.m */,
+				E95E074C203AE0A300BD8369 /* OMBlurPanel.h */,
+				E95E074D203AE0A300BD8369 /* OMBlurPanel.m */,
 			);
 			path = blur;
 			sourceTree = "<group>";
@@ -271,6 +281,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C97DDD9A2038D7DE003039AE /* ViewController.m in Sources */,
+				E95E074E203AE0A300BD8369 /* OMBlurPanel.m in Sources */,
+				E95E0751203AF1CE00BD8369 /* UIView+AnimationCircleWithMask.m in Sources */,
 				C97DDDA52038D7DE003039AE /* main.m in Sources */,
 				C97DDD972038D7DE003039AE /* AppDelegate.m in Sources */,
 				C97DDDC92038D7FA003039AE /* UIView+Blur.m in Sources */,
