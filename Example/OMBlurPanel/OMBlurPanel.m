@@ -11,18 +11,17 @@
 #import "UIView+Blur.h"
 
 
-#define COLOR_FROM_RGB(rgbValue) \
-[UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
-green:((float)((rgbValue & 0x00FF00) >>  8))/255.0 \
-blue:((float)((rgbValue & 0x0000FF) >>  0))/255.0 \
-alpha:1.0]
+
 
 
 @interface OMBlurPanel()
     @property(strong,nonatomic) CAGradientLayer *gradient;
+    @property(strong,nonatomic) NSArray *gradientColors;
 @end
 
 @implementation OMBlurPanel
+
+@dynamic colors;
 
 -(instancetype) initWithFrame:(CGRect)frame {
     if(self = [super initWithFrame:frame]) {
@@ -45,23 +44,37 @@ alpha:1.0]
     self.gradient = [CAGradientLayer layer];
     self.gradient.frame = self.contentView.frame;
     
-    UIColor * color3 = COLOR_FROM_RGB(0x4AC7F0);
-    UIColor * color2 = COLOR_FROM_RGB(0x10AFE3);
-    UIColor * color1 = COLOR_FROM_RGB(0x00A7E0);
-    UIColor * color0 = COLOR_FROM_RGB(0x008FDB);
     
     self.gradient.startPoint = CGPointMake(1, 0);
     self.gradient.endPoint   = CGPointMake(0, 1);
     
-    self.gradient.colors = @[(id)color3.CGColor,
-                             (id)color2.CGColor,
-                             (id)color1.CGColor,
-                             (id)color0.CGColor];
+    NSMutableArray * colorsCG = [NSMutableArray array];
+    
+    for (UIColor * color in _gradientColors) {
+        if ([color isKindOfClass:[UIColor class]]) {
+            [colorsCG addObject:(id)color.CGColor];
+        } else {
+            [colorsCG addObject:(id)color];
+        }
+    }
+    
+    
+    self.gradient.colors = colorsCG;
     
     
     //   panelView.backgroundColor = [UIColor blueColor];
     [self.contentView.layer insertSublayer:self.gradient atIndex:0];
+}
 
+
+
+-(NSArray*) colors {
+    return _gradientColors;
+}
+
+-(void) setColors:(NSArray *)colors {
+    _gradientColors = colors;
+    [self setNeedsLayout];
 }
 
 -(BOOL) isOpen {
@@ -69,6 +82,7 @@ alpha:1.0]
 }
 
 -(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block {
+    
     //
     // Morphing the UIView (reverse).
     //

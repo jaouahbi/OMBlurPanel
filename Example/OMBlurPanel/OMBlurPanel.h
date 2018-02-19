@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+@class OMBlurPanel;
+@protocol OMBlurPanelDelegate<NSObject>
+-(void) didClosePanel:(OMBlurPanel*) panel;
+-(void) didOpenPanel:(OMBlurPanel*) panel;
+@end
+
 @interface OMBlurPanel : UIView
 -(instancetype) initWithFrame:(CGRect)frame;
 -(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block;
@@ -15,4 +21,7 @@
 -(BOOL) isOpen;
 @property(strong,nonatomic) UIVisualEffectView* effectView;
 @property(strong,nonatomic) UIView *contentView;
+@property(strong,nonatomic) NSArray *colors;
+@property(weak,nonatomic) id<OMBlurPanelDelegate> delegate;
+
 @end

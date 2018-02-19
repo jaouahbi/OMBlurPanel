@@ -11,6 +11,12 @@
 #include "UIView+AnimationCircleWithMask.h"
 
 
+#define COLOR_FROM_RGB(rgbValue) \
+[UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+green:((float)((rgbValue & 0x00FF00) >>  8))/255.0 \
+blue:((float)((rgbValue & 0x0000FF) >>  0))/255.0 \
+alpha:1.0]
+
 @interface ViewController ()
 @property(strong,nonatomic) UIWebView * webView;
 @property(strong,nonatomic) UIButton *  floatingButton;
@@ -90,9 +96,7 @@
     // Setup the AURA button.
     //
     
-    
     _floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    
     
     
     UIImage* backgroundImage = [UIImage imageNamed:@"floatingButton"];
@@ -121,7 +125,6 @@
     
     UIWindow * appWindow = [[UIApplication sharedApplication] keyWindow];
     if (appWindow == nil) {
-        
         return ;
     }
     [appWindow addSubview:_floatingButton];
@@ -193,6 +196,18 @@
         
         
         [self.view layoutIfNeeded];
+        
+        
+        UIColor * color3 = COLOR_FROM_RGB(0x4AC7F0);
+        UIColor * color2 = COLOR_FROM_RGB(0x10AFE3);
+        UIColor * color1 = COLOR_FROM_RGB(0x00A7E0);
+        UIColor * color0 = COLOR_FROM_RGB(0x008FDB);
+        
+        //
+        // Set the diagonal gradient colors
+        //
+        
+        [self.panelView setColors:@[(id)color3.CGColor,(id)color2.CGColor,(id)color1.CGColor,(id)color0.CGColor]];
         
     }
 }
