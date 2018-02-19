@@ -77,22 +77,20 @@ alpha:1.0]
 
 -(void) didTouchUpInside:(id)sender
 {
-    if ([self.panelView isOpen]) {
-        [self.panelView close:self.floatingButton targetFrame:self.view.frame block:^{
-            self.floatingButton.hidden = NO;
-        }];
-
-    }else {
+    if (![self.panelView isOpen]) {
         [self.panelView open:self.floatingButton targetFrame:self.view.frame block:^{
             self.floatingButton.hidden = YES;
         }];
     }
-
 }
 
 -(void) didCloseTouchUpInside:(id)sender
 {
-    
+    if ([self.panelView isOpen]) {
+        [self.panelView close:self.floatingButton targetFrame:self.view.frame block:^{
+            self.floatingButton.hidden = NO;
+        }];
+    }
 }
 
 -(void) setUpFloatingButton {

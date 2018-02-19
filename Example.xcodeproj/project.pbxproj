@@ -75,14 +75,14 @@
 				E95E077A203B220400BD8369 /* UIView+AnimationCircleWithMask */,
 				E95E0772203B1BD100BD8369 /* UIView+Blur */,
 				E95E076E203B1BB500BD8369 /* OMBlurPanel */,
-				E95E0754203B1B6800BD8369 /* AppDelegate.h */,
 				E95E0756203B1B6800BD8369 /* Assets.xcassets */,
-				E95E0758203B1B6800BD8369 /* ViewController.m */,
 				E95E0759203B1B6800BD8369 /* LaunchScreen.storyboard */,
 				E95E075B203B1B6800BD8369 /* Main.storyboard */,
+				E95E0754203B1B6800BD8369 /* AppDelegate.h */,
 				E95E0760203B1B6800BD8369 /* AppDelegate.m */,
 				E95E0761203B1B6800BD8369 /* Info.plist */,
 				E95E0762203B1B6800BD8369 /* ViewController.h */,
+				E95E0758203B1B6800BD8369 /* ViewController.m */,
 				E95E075E203B1B6800BD8369 /* main.m */,
 			);
 			path = Example;
