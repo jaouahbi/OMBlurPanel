@@ -12,6 +12,8 @@
 @protocol OMBlurPanelDelegate<NSObject>
 -(void) didClosePanel:(OMBlurPanel*) panel;
 -(void) didOpenPanel:(OMBlurPanel*) panel;
+-(void) willClosePanel:(OMBlurPanel*) panel;
+-(void) willOpenPanel:(OMBlurPanel*) panel;
 @end
 
 @interface OMBlurPanel : UIView

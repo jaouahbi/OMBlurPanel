@@ -10,10 +10,6 @@
 #import "UIView+AnimationCircleWithMask.h"
 #import "UIView+Blur.h"
 
-
-
-
-
 @interface OMBlurPanel()
     @property(strong,nonatomic) CAGradientLayer *gradient;
     @property(strong,nonatomic) NSArray *gradientColors;
@@ -44,7 +40,6 @@
     self.gradient = [CAGradientLayer layer];
     self.gradient.frame = self.contentView.frame;
     
-    
     self.gradient.startPoint = CGPointMake(1, 0);
     self.gradient.endPoint   = CGPointMake(0, 1);
     
@@ -58,15 +53,9 @@
         }
     }
     
-    
     self.gradient.colors = colorsCG;
-    
-    
-    //   panelView.backgroundColor = [UIColor blueColor];
     [self.contentView.layer insertSublayer:self.gradient atIndex:0];
 }
-
-
 
 -(NSArray*) colors {
     return _gradientColors;
@@ -82,10 +71,18 @@
 }
 
 -(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block {
-    
+    NSParameterAssert(sourceView);
+    if(sourceView == nil) return;
+    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
+    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
     //
     // Morphing the UIView (reverse).
     //
+    
+    if (_delegate != nil) {
+        [_delegate willClosePanel:self];
+    }
+    
     CGFloat circleRadius = targetFrame.size.height;
     [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:1.0 delegate:nil block:^{
         [self.effectView removeFromSuperview];
@@ -93,16 +90,36 @@
         if (block) {
             block();
         }
+        if (_delegate != nil) {
+            [_delegate didClosePanel:self];
+        }
     }];
 }
 
--(void) open:(UIView*) sourceView  targetFrame:(CGRect)targetFrame block:(void (^)(void))block {
+-(void) open:(UIView*) sourceView targetFrame:(CGRect)targetFrame block:(void (^)(void))block {
+    NSParameterAssert(sourceView);
+    if(sourceView == nil) return;
+    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
+    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
+    
+    if(sourceView == nil) return;
     //
     // Morphing the UIView.
     //
+    if (_delegate != nil) {
+        [_delegate willOpenPanel:self];
+    }
+    
     self.frame = targetFrame;
     self.effectView = [self addViewWithBlur:self.contentView style:UIBlurEffectStyleDark addConstrainst:YES];
     CGFloat circleRadius = targetFrame.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:1.0 delegate:nil block:block];
+    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:1.0 delegate:nil block:^{
+        if (block) {
+            block();
+        }
+        if (_delegate != nil) {
+            [_delegate didOpenPanel:self];
+        }
+    }];
 }
 @end
