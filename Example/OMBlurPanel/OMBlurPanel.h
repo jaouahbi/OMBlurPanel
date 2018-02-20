@@ -18,8 +18,8 @@
 
 @interface OMBlurPanel : UIView
 -(instancetype) initWithFrame:(CGRect)frame;
--(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block;
--(void) open:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block ;
+-(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
+-(void) open:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 -(BOOL) isOpen;
 @property(strong,nonatomic) UIVisualEffectView* effectView;
 @property(strong,nonatomic) UIView *contentView;

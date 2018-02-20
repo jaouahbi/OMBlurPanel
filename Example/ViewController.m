@@ -75,19 +75,17 @@ alpha:1.0]
 }
 
 
--(void) didTouchUpInside:(id)sender
-{
+-(void) didTouchUpInside:(id)sender {
     if (![self.panelView isOpen]) {
-        [self.panelView open:self.floatingButton targetFrame:self.view.frame block:^{
+        [self.panelView open:self.floatingButton targetFrame:self.view.frame duration:1.0 block:^{
             self.floatingButton.hidden = YES;
         }];
     }
 }
 
--(void) didCloseTouchUpInside:(id)sender
-{
+-(void) didCloseTouchUpInside:(id)sender {
     if ([self.panelView isOpen]) {
-        [self.panelView close:self.floatingButton targetFrame:self.view.frame block:^{
+        [self.panelView close:self.floatingButton targetFrame:self.view.frame  duration:1.0 block:^{
             self.floatingButton.hidden = NO;
         }];
     }
@@ -198,8 +196,6 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-    
-        
         
         UIColor * color3 = COLOR_FROM_RGB(0x4AC7F0);
         UIColor * color2 = COLOR_FROM_RGB(0x10AFE3);
@@ -217,7 +213,7 @@ alpha:1.0]
         
         
         UIImage* backgroundImage = [UIImage imageNamed:@"closeButton"];
-        CGSize closeButtonSize = CGSizeMake(18 * 1.3, 9  * 1.3);
+        CGSize closeButtonSize = CGSizeMake(24, 12);
         [self.buttonClose setBackgroundImage:backgroundImage forState:UIControlStateNormal];
         CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
         [self.buttonClose setFrame:buttonFrame];

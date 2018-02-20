@@ -11,8 +11,8 @@
 #import "UIView+Blur.h"
 
 @interface OMBlurPanel()
-    @property(strong,nonatomic) CAGradientLayer *gradient;
-    @property(strong,nonatomic) NSArray *gradientColors;
+@property(strong,nonatomic) CAGradientLayer *gradient;
+@property(strong,nonatomic) NSArray *gradientColors;
 @end
 
 @implementation OMBlurPanel
@@ -22,9 +22,10 @@
 -(instancetype) initWithFrame:(CGRect)frame {
     if(self = [super initWithFrame:frame]) {
         self.alpha               = 1.0;
+        self.contentView         = [[UIView alloc] initWithFrame:frame];
+        self.contentView.alpha   = 0.68;
         self.layer.masksToBounds = YES;
-        self.layer.cornerRadius  = 6;
-        self.contentView = [[UIView alloc] initWithFrame:frame];
+        self.layer.cornerRadius  = 8;
     }
     return self;
 }
@@ -36,8 +37,10 @@
         self.gradient = [CAGradientLayer layer];
         [self.contentView.layer insertSublayer:self.gradient atIndex:0];
     }
+
+
     
-    self.gradient.frame = self.contentView.frame;
+    self.gradient.frame = self.frame;
     self.gradient.startPoint = CGPointMake(1, 0);
     self.gradient.endPoint   = CGPointMake(0, 1);
     
@@ -50,10 +53,6 @@
         }
     }
     self.gradient.colors = colorsCG;;
-    self.contentView.layer.borderColor = [[UIColor redColor] CGColor];
-    self.contentView.layer.borderWidth = 2;
-    
-    
 }
 
 -(NSArray*) colors {
@@ -69,7 +68,7 @@
    return (self.effectView != nil);
 }
 
--(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame block:(void (^)(void))block {
+-(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
@@ -83,7 +82,7 @@
     //
     
     CGFloat circleRadius = targetFrame.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:1.0 delegate:nil block:^{
+    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:duration delegate:nil block:^{
         [self.effectView removeFromSuperview];
         self.effectView  = nil;
         if (block) {
@@ -95,7 +94,7 @@
     }];
 }
 
--(void) open:(UIView*) sourceView targetFrame:(CGRect)targetFrame block:(void (^)(void))block {
+-(void) open:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
@@ -109,10 +108,10 @@
     // Morphing the UIView.
     //
     
-    self.frame = targetFrame;
+    self.frame      = targetFrame;
     self.effectView = [self addViewWithBlur:self.contentView style:UIBlurEffectStyleDark addConstrainst:YES];
     CGFloat circleRadius = targetFrame.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:1.0 delegate:nil block:^{
+    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:duration delegate:nil block:^{
         if (block) {
             block();
         }
