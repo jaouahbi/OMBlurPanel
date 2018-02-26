@@ -43,7 +43,6 @@ const CGFloat MSPButtonDownMarginSpace = 8;
     UIBezierPath * maskPath     = [UIBezierPath new];
     UIBezierPath * circlePath   = [UIBezierPath new];
     
-    CGFloat frameHeight         = self.frame.size.height;
     CGFloat buttonFrameHeight   = sourceView.bounds.size.height;
     CGPoint buttonCenter        = sourceView.center;
     CGFloat maskRadius          = buttonFrameHeight * 0.5;
@@ -54,7 +53,7 @@ const CGFloat MSPButtonDownMarginSpace = 8;
     //
     
     if (ratio != 1.0) {
-        center = CGPointMake(center.x, (frameHeight - buttonFrameHeight) + MSPButtonDownMarginSpace);
+        center = CGPointMake(center.x, (circleRadius - buttonFrameHeight) + MSPButtonDownMarginSpace);
     }
     
     //
@@ -68,10 +67,10 @@ const CGFloat MSPButtonDownMarginSpace = 8;
     [maskPath closePath];
     
     
-    [circlePath addArcWithCenter:center radius:frameHeight startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
-    [circlePath addArcWithCenter:center radius:frameHeight startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
-    [circlePath addArcWithCenter:center radius:frameHeight startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
-    [circlePath addArcWithCenter:center radius:frameHeight startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
+    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
+    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
+    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
+    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
     [circlePath closePath];
     
     //
@@ -118,7 +117,7 @@ const CGFloat MSPButtonDownMarginSpace = 8;
         }];
     }
     
-    [maskLayer addAnimation:animation forKey:@"AURAMorphingAnimation"];
+    [maskLayer addAnimation:animation forKey:@"MaskAnimation"];
     if (!reverse) {
         [maskLayer setPath:[circlePath CGPath]];
     }

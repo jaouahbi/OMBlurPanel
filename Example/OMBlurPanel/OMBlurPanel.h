@@ -14,16 +14,20 @@
 -(void) didOpenPanel:(OMBlurPanel*) panel;
 -(void) willClosePanel:(OMBlurPanel*) panel;
 -(void) willOpenPanel:(OMBlurPanel*) panel;
+
+-(void) didlClosePanelWithGesture:(OMBlurPanel*) panel;
 @end
 
 @interface OMBlurPanel : UIView
--(instancetype) initWithFrame:(CGRect)frame;
--(void) close:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
--(void) open:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
+-(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style;
+-(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
+-(void) openPanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 -(BOOL) isOpen;
+-(void)addCloseButton:(UIImage*) backgroundImage closeButtonSize:(CGSize) closeButtonSize action(SEL)action;
 @property(strong,nonatomic) UIVisualEffectView* effectView;
 @property(strong,nonatomic) UIView *contentView;
 @property(strong,nonatomic) NSArray *colors;
+
 @property(weak,nonatomic) id<OMBlurPanelDelegate> delegate;
 
 @end

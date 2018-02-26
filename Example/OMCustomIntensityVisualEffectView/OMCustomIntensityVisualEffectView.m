@@ -1,9 +1,8 @@
 //
 //  OMCustomIntensityVisualEffectView.m
-//  MovistarPlus
 //
 //  Created by Jorge Ouahbi on 19/2/18.
-//  Copyright © 2018 Movistar+. All rights reserved.
+//  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
 #import "OMCustomIntensityVisualEffectView.h"
