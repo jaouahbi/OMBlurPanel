@@ -39,7 +39,6 @@
         self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         self.cornerRadii         = CGSizeMake(0, 8);
         self.allowCloseGesture   = YES;
-
     }
     return self;
 
@@ -149,6 +148,15 @@
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
+    [self openPanelWithRatio:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
+}
+
+
+-(void) openPanelWithRatio:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
+    NSParameterAssert(sourceView);
+    if(sourceView == nil) return;
+    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
+    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
     
     if (self.allowCloseGesture) {
         self.sourceView = sourceView;
@@ -253,7 +261,6 @@
                                                                           metrics:nil
                                                                             views:NSDictionaryOfVariableBindings(view)];
     [self.contentView addSubview:view];
-
     [self.contentView addConstraints:fixedWidthButton];
     [self.contentView addConstraints:fixedHeightButton];
     
