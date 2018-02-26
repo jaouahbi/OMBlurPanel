@@ -13,11 +13,11 @@
 		E95E0769203B1B6800BD8369 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E95E075B203B1B6800BD8369 /* Main.storyboard */; };
 		E95E076A203B1B6800BD8369 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E075E203B1B6800BD8369 /* main.m */; };
 		E95E076C203B1B6800BD8369 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0760203B1B6800BD8369 /* AppDelegate.m */; };
-		E95E076D203B1B6800BD8369 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E95E0761203B1B6800BD8369 /* Info.plist */; };
 		E95E0771203B1BB500BD8369 /* OMBlurPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E076F203B1BB500BD8369 /* OMBlurPanel.m */; };
 		E95E0775203B1BD100BD8369 /* UIView+Blur.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0774203B1BD100BD8369 /* UIView+Blur.m */; };
 		E95E077D203B220400BD8369 /* UIView+AnimationCircleWithMask.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E077B203B220400BD8369 /* UIView+AnimationCircleWithMask.m */; };
-		E95E0781203B221100BD8369 /* OMCustomIntensityVisualEffectView.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E077F203B221100BD8369 /* OMCustomIntensityVisualEffectView.m */; };
+		E9A61FEB20441FF700CCD8CB /* UIView+CornerRounded.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A61FEA20441FF700CCD8CB /* UIView+CornerRounded.m */; };
+		E9A61FF5204426A300CCD8CB /* UIVisualEffectView+Intensity.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A61FF4204426A200CCD8CB /* UIVisualEffectView+Intensity.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,8 +37,10 @@
 		E95E0774203B1BD100BD8369 /* UIView+Blur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Blur.m"; sourceTree = "<group>"; };
 		E95E077B203B220400BD8369 /* UIView+AnimationCircleWithMask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AnimationCircleWithMask.m"; sourceTree = "<group>"; };
 		E95E077C203B220400BD8369 /* UIView+AnimationCircleWithMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AnimationCircleWithMask.h"; sourceTree = "<group>"; };
-		E95E077F203B221100BD8369 /* OMCustomIntensityVisualEffectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OMCustomIntensityVisualEffectView.m; sourceTree = "<group>"; };
-		E95E0780203B221100BD8369 /* OMCustomIntensityVisualEffectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OMCustomIntensityVisualEffectView.h; sourceTree = "<group>"; };
+		E9A61FE920441FF700CCD8CB /* UIView+CornerRounded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CornerRounded.h"; sourceTree = "<group>"; };
+		E9A61FEA20441FF700CCD8CB /* UIView+CornerRounded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CornerRounded.m"; sourceTree = "<group>"; };
+		E9A61FF3204426A200CCD8CB /* UIVisualEffectView+Intensity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIVisualEffectView+Intensity.h"; sourceTree = "<group>"; };
+		E9A61FF4204426A200CCD8CB /* UIVisualEffectView+Intensity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIVisualEffectView+Intensity.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +73,8 @@
 		E95E0752203B1B6800BD8369 /* Example */ = {
 			isa = PBXGroup;
 			children = (
-				E95E077E203B221100BD8369 /* OMCustomIntensityVisualEffectView */,
+				E9A61FF2204426A200CCD8CB /* UIVisualEffectView+Intensity */,
+				E9A61FE820441FF700CCD8CB /* UIView+CornerRounded */,
 				E95E077A203B220400BD8369 /* UIView+AnimationCircleWithMask */,
 				E95E0772203B1BD100BD8369 /* UIView+Blur */,
 				E95E076E203B1BB500BD8369 /* OMBlurPanel */,
@@ -115,13 +118,22 @@
 			path = "UIView+AnimationCircleWithMask";
 			sourceTree = "<group>";
 		};
-		E95E077E203B221100BD8369 /* OMCustomIntensityVisualEffectView */ = {
+		E9A61FE820441FF700CCD8CB /* UIView+CornerRounded */ = {
 			isa = PBXGroup;
 			children = (
-				E95E077F203B221100BD8369 /* OMCustomIntensityVisualEffectView.m */,
-				E95E0780203B221100BD8369 /* OMCustomIntensityVisualEffectView.h */,
+				E9A61FE920441FF700CCD8CB /* UIView+CornerRounded.h */,
+				E9A61FEA20441FF700CCD8CB /* UIView+CornerRounded.m */,
 			);
-			path = OMCustomIntensityVisualEffectView;
+			path = "UIView+CornerRounded";
+			sourceTree = "<group>";
+		};
+		E9A61FF2204426A200CCD8CB /* UIVisualEffectView+Intensity */ = {
+			isa = PBXGroup;
+			children = (
+				E9A61FF3204426A200CCD8CB /* UIVisualEffectView+Intensity.h */,
+				E9A61FF4204426A200CCD8CB /* UIVisualEffectView+Intensity.m */,
+			);
+			path = "UIVisualEffectView+Intensity";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,7 +194,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E95E076D203B1B6800BD8369 /* Info.plist in Resources */,
 				E95E0769203B1B6800BD8369 /* Main.storyboard in Resources */,
 				E95E0765203B1B6800BD8369 /* Assets.xcassets in Resources */,
 				E95E0768203B1B6800BD8369 /* LaunchScreen.storyboard in Resources */,
@@ -200,9 +211,10 @@
 				E95E076C203B1B6800BD8369 /* AppDelegate.m in Sources */,
 				E95E077D203B220400BD8369 /* UIView+AnimationCircleWithMask.m in Sources */,
 				E95E0775203B1BD100BD8369 /* UIView+Blur.m in Sources */,
-				E95E0781203B221100BD8369 /* OMCustomIntensityVisualEffectView.m in Sources */,
 				E95E076A203B1B6800BD8369 /* main.m in Sources */,
+				E9A61FF5204426A300CCD8CB /* UIVisualEffectView+Intensity.m in Sources */,
 				E95E0771203B1BB500BD8369 /* OMBlurPanel.m in Sources */,
+				E9A61FEB20441FF700CCD8CB /* UIView+CornerRounded.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,11 +23,14 @@
 -(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
 -(void) openPanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 -(BOOL) isOpen;
--(void)addCloseButton:(UIImage*) backgroundImage closeButtonSize:(CGSize) closeButtonSize action(SEL)action;
+-(void) addCloseButton:(UIButton*) buttonClose;
+
 @property(strong,nonatomic) UIVisualEffectView* effectView;
 @property(strong,nonatomic) UIView *contentView;
 @property(strong,nonatomic) NSArray *colors;
-
+// Must be set before add to the superview.
+@property(assign,nonatomic) CGSize cornerRadii;
 @property(weak,nonatomic) id<OMBlurPanelDelegate> delegate;
+@property(assign,nonatomic) BOOL allowCloseGesture;
 
 @end
