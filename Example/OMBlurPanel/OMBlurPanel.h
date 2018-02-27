@@ -28,7 +28,7 @@
  */
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style;
 /**!
- * @brief
+ * @brief Close the panel
  *
  * @param sourceView UIView
  * @param targetFrame CGRect
@@ -37,7 +37,7 @@
  */
 -(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
 /**!
- * @brief
+ * @brief Open the panel
  *
  * @param sourceView UIView
  * @param targetFrame CGRect
@@ -46,7 +46,7 @@
  */
 -(void) openPanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 /**!
- * @brief
+ * @brief Open the panel
  *
  * @param sourceView UIView
  * @param targetFrame CGRect
@@ -54,19 +54,13 @@
  * @param ratio CGFloat
  * @param block Completion block
  */
--(void) openPanelWithRatio:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
+-(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
 /**!
  * @brief Panel open state.
  *
  * @return BOOL
  */
 -(BOOL) isOpen;
-/**!
- * @brief
- *
- * @param buttonClose UIButton
- */
--(void) addCloseButton:(UIButton*) buttonClose;
 
 #pragma mark - Properties
 

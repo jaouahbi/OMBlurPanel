@@ -194,7 +194,8 @@ alpha:1.0]
 }
 
 -(void) setupPanel {
-    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleLight];
+    
+    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark];
     if (self.panelView != nil) {
         [self.view addSubview:self.panelView];
         _panelView.delegate = self;
@@ -246,17 +247,50 @@ alpha:1.0]
         
         CGSize closeButtonSize    = CGSizeMake(24, 12);
         UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
-        self.buttonClose.contentEdgeInsets = UIEdgeInsetsMake(12, 16, 12, 16);
+        //self.buttonClose.contentEdgeInsets = UIEdgeInsetsMake(12, 16, 12, 16);
         self.buttonClose = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.buttonClose setBackgroundImage:backgroundImage forState:UIControlStateNormal];
         CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
         [self.buttonClose setFrame:buttonFrame];
         [self.buttonClose addTarget:self action:@selector(didCloseTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
         
-        //
-        // Add the close button
-        //
-        [self.panelView addCloseButton:self.buttonClose];
+        [self.buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
+        UIView * view = self.buttonClose;
+        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", self.buttonClose.bounds.size.width]
+                                                                             options:0
+                                                                             metrics:nil
+                                                                               views:NSDictionaryOfVariableBindings(view)];
+        
+        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", self.buttonClose.bounds.size.height]
+                                                                              options:0
+                                                                              metrics:nil
+                                                                                views:NSDictionaryOfVariableBindings(view)];
+        [self.panelView.contentView addSubview:view];
+        [self.panelView.contentView addConstraints:fixedWidthButton];
+        [self.panelView.contentView addConstraints:fixedHeightButton];
+        
+//DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
+        
+        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
+                                                                               relatedBy:NSLayoutRelationEqual
+                                                                                  toItem:view.superview
+                                                                               attribute:NSLayoutAttributeCenterX
+                                                                              multiplier:1.0
+                                                                                constant:0];
+        
+        NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:view
+                                                                          attribute:NSLayoutAttributeTop
+                                                                          relatedBy:NSLayoutRelationEqual
+                                                                             toItem:view.superview
+                                                                          attribute:NSLayoutAttributeTop
+                                                                         multiplier:1.0
+                                                                           constant:15];
+        
+        [self.panelView.contentView  addConstraint:centerXConstraint];
+        [self.panelView.contentView  addConstraint:topConstrain];
+        
+        [self.panelView.contentView layoutSubviews];
+        
     }
 }
 

@@ -11,6 +11,11 @@
 #import "UIView+CornerRounded.h"
 #import "UIView+Blur.h"
 
+
+#ifndef CLAMP
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+#endif
+
 @interface OMBlurPanel()
 {
     CGRect _originalPanFrame;
@@ -76,9 +81,7 @@
     
 }
 
-
 #pragma mark - Public Properties
-
 
 -(void) setAllowCloseGesture:(BOOL)allowCloseGesture {
     if (allowCloseGesture) {
@@ -116,6 +119,14 @@
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
+    [self closePanel:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
+}
+
+-(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio block:(void (^)(void))block {
+    NSParameterAssert(sourceView);
+    if(sourceView == nil) return;
+    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
+    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
     NSParameterAssert(self.effectView);
     if(self.effectView == nil) return;
     
@@ -143,21 +154,22 @@
     }];
 }
 
+
 -(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    [self openPanelWithRatio:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
+    [self openPanel:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
 }
 
 
--(void) openPanelWithRatio:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
+-(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    
+
     if (self.allowCloseGesture) {
         self.sourceView = sourceView;
     }
@@ -168,13 +180,13 @@
     }
     
     //
-    // Morphing the UIView.
+    // Animate the mask.
     //
     
     self.frame      = targetFrame;
     self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
     CGFloat circleRadius = targetFrame.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:NO duration:duration delegate:nil block:^{
+    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:CLAMP(ratio, 0.0, 1.0) reverse:NO duration:duration delegate:nil block:^{
         if (block) {
             block();
         }
@@ -186,105 +198,69 @@
     }];
 }
 
-
--(void)handlePanGesture:(UIPanGestureRecognizer*)sender {
-    
+-(void) handlePanGesture:(UIPanGestureRecognizer*)sender {
     if (![self isOpen]) {
         return;
     }
-    
     CGPoint translatedPoint = [sender translationInView:self];
     //CGPoint translatedVelocity = [sender velocityInView:self];
-    
-    if([sender state] == UIGestureRecognizerStateBegan) {
+    if ([sender state] == UIGestureRecognizerStateBegan) {
         _originalPanFrame = [self frame];
     } else if([sender state] == UIGestureRecognizerStateChanged) {
-        _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
-                                         _originalPanFrame.origin.y+translatedPoint.y,
-                                         _originalPanFrame.size.width,
-                                         _originalPanFrame.size.height);
-        self.effectView.frame = _lastChangePanFrame;
-        [UIView animateWithDuration:0.1
-                              delay:0.0
-             usingSpringWithDamping:0.53
-              initialSpringVelocity:1.0
-                            options:UIViewAnimationOptionCurveEaseInOut
-                         animations:^{
-                             [self.effectView layoutIfNeeded ];
-                         } completion:nil];
-    } else if([sender state] == UIGestureRecognizerStateEnded ||
-       [sender state] == UIGestureRecognizerStateCancelled) {
-        CGRect targetFrame = CGRectMake(_originalPanFrame.origin.x,
-                                        _lastChangePanFrame.origin.y,
-                                        _originalPanFrame.size.width,
-                                        _originalPanFrame.size.height);
-        self.effectView.frame = _originalPanFrame;
-        CGFloat offset = fabs(_lastChangePanFrame.origin.y - _originalPanFrame.origin.y);
-        if (offset > (self.effectView.bounds.size.height * 0.10)) { // 10%
-            //
-            // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
-            //
-            NSTimeInterval  animationDuration = 1 * (1.0  - fabs(offset / self.effectView.bounds.size.height));
-            [self closePanel:self.sourceView targetFrame:targetFrame duration:animationDuration block:^{
-                if (_delegate) {
-                    if([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
-                        [_delegate didlClosePanelWithGesture:self];
-                    }
-                }
-            }];
-        } else {
-            self.effectView.frame = _originalPanFrame;
-            [UIView animateWithDuration:0.3
-                                  delay:0.2
+        CGFloat newOriginY = _originalPanFrame.origin.y+translatedPoint.y;
+        if (newOriginY > 0) {
+            _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
+                                             newOriginY ,
+                                             _originalPanFrame.size.width,
+                                             _originalPanFrame.size.height);
+            self.effectView.frame = _lastChangePanFrame;
+            [UIView animateWithDuration:0.1
+                                  delay:0.0
                  usingSpringWithDamping:0.53
                   initialSpringVelocity:1.0
                                 options:UIViewAnimationOptionCurveEaseInOut
                              animations:^{
-                 [self.effectView layoutIfNeeded ];
-             } completion:nil];
+                                 [self.effectView layoutIfNeeded];
+                             } completion:nil];
         }
+    } else if([sender state] == UIGestureRecognizerStateEnded ||
+              [sender state] == UIGestureRecognizerStateCancelled ||
+              [sender state] == UIGestureRecognizerStateFailed) {
+        
+        CGFloat offset = _lastChangePanFrame.origin.y - _originalPanFrame.origin.y;
+        if (offset > 0) {
+            CGRect targetFrame = CGRectMake(_originalPanFrame.origin.x,
+                                            _lastChangePanFrame.origin.y,
+                                            _originalPanFrame.size.width,
+                                            _originalPanFrame.size.height);
+            self.effectView.frame = _originalPanFrame;
+            if (offset > (self.effectView.bounds.size.height * 0.10)) { // 10%
+                //
+                // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
+                //
+                NSTimeInterval  animationDuration = 1 * (1.0  - fabs(offset / self.effectView.bounds.size.height));
+                [self closePanel:self.sourceView targetFrame:targetFrame duration:animationDuration block:^{
+                    if (_delegate) {
+                        if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
+                            [_delegate didlClosePanelWithGesture:self];
+                        }
+                    }
+                }];
+            } else {
+                self.effectView.frame = _originalPanFrame;
+                [UIView animateWithDuration:0.3
+                                      delay:0.2
+                     usingSpringWithDamping:1.0
+                      initialSpringVelocity:1.0
+                                    options:UIViewAnimationOptionCurveEaseInOut
+                                 animations:^{
+                                     [self.effectView layoutIfNeeded];
+                                 } completion:nil];
+            }
+        }
+        _lastChangePanFrame = CGRectZero;
+        _originalPanFrame   = CGRectZero;
     }
-}
-
-
--(void)addCloseButton:(UIButton*) buttonClose {
-    
-    [buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
-    UIView * view = buttonClose;
-    NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", buttonClose.bounds.size.width]
-                                                                         options:0
-                                                                         metrics:nil
-                                                                           views:NSDictionaryOfVariableBindings(view)];
-    
-    NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", buttonClose.bounds.size.height]
-                                                                          options:0
-                                                                          metrics:nil
-                                                                            views:NSDictionaryOfVariableBindings(view)];
-    [self.contentView addSubview:view];
-    [self.contentView addConstraints:fixedWidthButton];
-    [self.contentView addConstraints:fixedHeightButton];
-    
-    //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
-    
-    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
-                                                                           relatedBy:NSLayoutRelationEqual
-                                                                              toItem:view.superview
-                                                                           attribute:NSLayoutAttributeCenterX
-                                                                          multiplier:1.0
-                                                                            constant:0];
-
-    NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:view
-                                                                         attribute:NSLayoutAttributeTop
-                                                                         relatedBy:NSLayoutRelationEqual
-                                                                            toItem:view.superview
-                                                                         attribute:NSLayoutAttributeTop
-                                                                        multiplier:1.0
-                                                                          constant:15];
-    
-    [self.contentView  addConstraint:centerXConstraint];
-    [self.contentView  addConstraint:topConstrain];
-    
-    [self.contentView layoutSubviews];
 }
 
 @end
