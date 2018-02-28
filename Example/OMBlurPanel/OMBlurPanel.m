@@ -20,12 +20,15 @@
 {
     CGRect _originalPanFrame;
     CGRect _lastChangePanFrame;
+
 }
 @property(strong,nonatomic) CAGradientLayer *gradient;
 @property(strong,nonatomic) NSArray *gradientColors;
 @property(strong,nonatomic) UIView  *sourceView;
 @property(assign,nonatomic) UIBlurEffectStyle style;
 @property(strong,nonatomic) UIPanGestureRecognizer *panGesture;
+@property(assign,nonatomic) CGFloat ratio;
+@property(assign,nonatomic) NSTimeInterval  animationDuration;
 @end
 
 @implementation OMBlurPanel
@@ -44,6 +47,12 @@
         self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         self.cornerRadii         = CGSizeMake(0, 8);
         self.allowCloseGesture   = YES;
+        self.ratio               =  0;
+        
+        _originalPanFrame = CGRectZero;;
+        _lastChangePanFrame  = CGRectZero;
+    
+        
     }
     return self;
 
@@ -64,7 +73,7 @@
             self.gradient = [CAGradientLayer layer];
             [self.contentView.layer insertSublayer:self.gradient atIndex:0];
         }
-        self.gradient.frame = self.frame;
+        self.gradient.frame      = self.bounds;
         self.gradient.startPoint = CGPointMake(1, 0);
         self.gradient.endPoint   = CGPointMake(0, 1);
         
@@ -114,21 +123,26 @@
     return (self.effectView != nil);
 }
 
--(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
+-(CGRect) rectFromRatio:(CGRect) frame ratio:(CGFloat) ratio {
+    CGFloat newHeight = frame.size.height * ratio;
+    CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - newHeight , frame.size.width, newHeight);
+    return rect;
+}
+-(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
     if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    [self closePanel:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
+    [self closePanel:sourceView parentFrame:targetFrame duration:duration ratio:self.ratio block:block];
 }
 
--(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio block:(void (^)(void))block {
+-(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
-    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
+    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
+    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
     NSParameterAssert(self.effectView);
-    if(self.effectView == nil) return;
+    if (self.effectView == nil) return;
     
     if (_delegate != nil) {
         if ([_delegate respondsToSelector:@selector(willClosePanel:)]) {
@@ -138,9 +152,15 @@
     //
     // Animate the mask (reverse).
     //
-    
-    CGFloat circleRadius =  (targetFrame.size.height - targetFrame.origin.y)  - sourceView.bounds.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:1.0 reverse:YES duration:duration delegate:nil block:^{
+
+    CGFloat circleRadius =  ((parentFrame.size.height - parentFrame.origin.y)  - sourceView.bounds.size.height) * ratio;
+    [self.effectView animateMaskWithView:sourceView
+                            circleRadius:circleRadius
+                                   ratio:ratio
+                                 reverse:YES
+                                duration:duration
+                                delegate:nil block:^{
+        self.frame = CGRectZero;
         [self.effectView removeFromSuperview];
         self.effectView  = nil;
         if (block) {
@@ -155,24 +175,26 @@
 }
 
 
--(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
+-(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
-    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
-    [self openPanel:sourceView targetFrame:targetFrame duration:duration ratio:1.0 block:block];
+    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
+    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
+    [self openPanel:sourceView parentFrame:parentFrame duration:duration ratio:1.0 block:block];
 }
 
 
--(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
+-(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)parentFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(targetFrame, CGRectZero));
-    if(CGRectEqualToRect(targetFrame, CGRectZero)) return;
+    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
+    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
 
     if (self.allowCloseGesture) {
         self.sourceView = sourceView;
     }
+    self.ratio = CLAMP(ratio, 0.0, 1.0);
+    self.animationDuration = duration;
     if (_delegate != nil) {
         if([_delegate respondsToSelector:@selector(willOpenPanel:)]) {
             [_delegate willOpenPanel:self];
@@ -183,10 +205,17 @@
     // Animate the mask.
     //
     
-    self.frame      = targetFrame;
+
     self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
-    CGFloat circleRadius = targetFrame.size.height;
-    [self.effectView animateMaskWithView:sourceView circleRadius:circleRadius ratio:CLAMP(ratio, 0.0, 1.0) reverse:NO duration:duration delegate:nil block:^{
+    self.frame      = [self rectFromRatio:parentFrame ratio:self.ratio];
+    CGFloat circleRadius = parentFrame.size.height * self.ratio;
+    [self.effectView animateMaskWithView:sourceView
+                            circleRadius:circleRadius
+                                   ratio:self.ratio
+                                 reverse:NO
+                                duration:duration
+                                delegate:nil
+                                   block:^{
         if (block) {
             block();
         }
@@ -238,8 +267,8 @@
                 //
                 // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
                 //
-                NSTimeInterval  animationDuration = 1 * (1.0  - fabs(offset / self.effectView.bounds.size.height));
-                [self closePanel:self.sourceView targetFrame:targetFrame duration:animationDuration block:^{
+                NSTimeInterval  animationDuration = _animationDuration * (1.0  - fabs(offset / self.effectView.bounds.size.height));
+                [self closePanel:self.sourceView parentFrame:self.frame duration:animationDuration ratio:self.ratio  block:^{
                     if (_delegate) {
                         if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
                             [_delegate didlClosePanelWithGesture:self];

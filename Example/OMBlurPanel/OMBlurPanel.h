@@ -27,15 +27,17 @@
  * @return self
  */
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style;
+
+-(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block;
 /**!
  * @brief Close the panel
  *
  * @param sourceView UIView
- * @param targetFrame CGRect
+ * @param parentFrame CGRect
  * @param duration NSTimeInterval
  * @param block Completion block
  */
--(void) closePanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
+-(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
 /**!
  * @brief Open the panel
  *
@@ -44,7 +46,7 @@
  * @param duration NSTimeInterval
  * @param block Completion block
  */
--(void) openPanel:(UIView*) sourceView targetFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
+-(void) openPanel:(UIView*) sourceView parentFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 /**!
  * @brief Open the panel
  *
@@ -54,7 +56,7 @@
  * @param ratio CGFloat
  * @param block Completion block
  */
--(void) openPanel:(UIView*) sourceView targetFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
+-(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)targetFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
 /**!
  * @brief Panel open state.
  *
