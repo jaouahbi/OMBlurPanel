@@ -52,9 +52,7 @@ const CGFloat MSPButtonDownMarginSpace = 8;
     // Calculate the center position for other ratios than 1.0
     //
     
-    if (ratio != 1.0) {
-        center = CGPointMake(center.x, (circleRadius - buttonFrameHeight) + MSPButtonDownMarginSpace);
-    }
+     center = CGPointMake(center.x ,  ratio * center.y);
     
     //
     // Create the paths

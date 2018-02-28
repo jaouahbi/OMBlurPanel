@@ -99,14 +99,14 @@ alpha:1.0]
 
 -(void) didTouchUpInside:(id)sender {
     if (![self.panelView isOpen]) {
-        [self.panelView openPanel:self.floatingButton targetFrame:self.view.frame duration:1.0 block:^{
+        [self.panelView openPanel:self.floatingButton parentFrame:self.view.frame duration:10.0 ratio:0.80 block:^{
             self.floatingButton.hidden = YES;
         }];
     }
 }
 -(void) didCloseTouchUpInside:(id)sender {
     if ([self.panelView isOpen]) {
-        [self.panelView closePanel:self.floatingButton targetFrame:self.view.frame duration:1.0 block:^{
+        [self.panelView closePanel:self.floatingButton parentFrame:self.view.frame duration:1.0 block:^{
             self.floatingButton.hidden = NO;
         }];
     }
