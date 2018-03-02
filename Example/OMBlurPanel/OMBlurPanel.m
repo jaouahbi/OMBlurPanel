@@ -34,85 +34,43 @@
 @dynamic colors;
 @dynamic allowCloseGesture;
 
-#pragma mark - overwrites
+#pragma mark - Overrides
 
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style{
     if(self = [super initWithFrame:frame]) {
-        self.alpha               = 1.0;
-        self.contentView         = [[UIView alloc] initWithFrame:frame];
-        self.contentView.alpha   = 0.68;
-        self.style               = style;
-        self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        self.cornerRadii         = CGSizeMake(0, 8);
-        self.allowCloseGesture   = YES;
-        self.ratio               =  0;
-        self.originalPanFrame    = CGRectZero;
-        self.lastChangePanFrame  = CGRectZero;
-        
-        
+       [self defaultInitWithStyle:UIBlurEffectStyleDark];
     }
     return self;
-
 }
 
-#pragma mask - UITapGestureRecognizer method
-
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    return touch.view != self;
+-(instancetype) initWithFrame:(CGRect)frame {
+    return [self initWithFrame:frame style:UIBlurEffectStyleDark];
 }
 
-/**!
- * @brief Tap recognizer
- *
- * @param gestureRecognizer UITapGestureRecognizer*.
- */
-
-- (void)tapRecognizerMethod:(UITapGestureRecognizer *)gestureRecognizer {
-    UIView *tappedView = nil;
-    if (self.tapRecognizer == gestureRecognizer) {
-        if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
-            tappedView = [gestureRecognizer.view hitTest:[gestureRecognizer locationInView:gestureRecognizer.view] withEvent:nil];
-            if (tappedView != nil) {
-                BOOL isChild = viewIsChildViewOfClassView(tappedView, [self class]);
-                if (!isChild && [self isOpen]) {
-                    [self closePanel:self.sourceView parentFrame:self.frame duration:self.animationDurationPan ratio:self.ratio  block:^{
-                        if (_delegate) {
-                            if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
-                                [_delegate didlClosePanelWithGesture:self];
-                            }
-                        }
-                    }];
-                }
-            }
-        }
+-(instancetype) initWithCoder:(NSCoder *)aDecoder {
+    if(self = [super initWithCoder:aDecoder]) {
+        [self defaultInitWithStyle:UIBlurEffectStyleDark];
     }
-}
-
-#pragma mask - UIGestureRecognizerDelegate
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    return YES;
+    return self;
 }
 
 
-BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
-    if ([view isKindOfClass:viewClass]) {
-        return YES;
-    }
-    
-    UIView * superview = view.superview;
-    while (superview != nil) {
-        if([superview isKindOfClass:viewClass]) return YES;
-        superview = superview.superview;
-    }
-    
-    return NO;
-    
+-(void) defaultInitWithStyle:(UIBlurEffectStyle)style {
+    self.alpha               = 1.0;
+    self.contentView         = [[UIView alloc] initWithFrame:self.frame];
+    self.contentView.alpha   = 0.68;
+    self.style               = style;
+    self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.cornerRadii         = CGSizeMake(0, 8);
+    self.allowCloseGesture   = YES;
+    self.ratio               =  0;
+    self.originalPanFrame    = CGRectZero;
+    self.lastChangePanFrame  = CGRectZero;
 }
 
 - (void)willMoveToSuperview:(UIView *)newSuperview {
     if (newSuperview != nil) {
-         [super willMoveToSuperview:newSuperview];
+        [super willMoveToSuperview:newSuperview];
         //
         // Setup the gesture recognize
         //
@@ -126,8 +84,8 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
         //
         [newSuperview addGestureRecognizer:self.tapRecognizer];
     } else {
-         [self.tapRecognizer.view removeGestureRecognizer:self.tapRecognizer];
-         [super willMoveToSuperview:newSuperview];
+        [self.tapRecognizer.view removeGestureRecognizer:self.tapRecognizer];
+        [super willMoveToSuperview:newSuperview];
     }
 }
 
@@ -136,7 +94,7 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
 -(void) didMoveToSuperview {
     [super didMoveToSuperview];
     [self setCornerRadius:self.cornerRadii corner:(UIRectCornerTopLeft|UIRectCornerTopRight)];
-
+    
 }
 
 
@@ -164,6 +122,70 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
     }
     
 }
+
+
+#pragma mask - UITapGestureRecognizer method
+
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    return touch.view != self;
+}
+
+/**!
+ * @brief Tap recognizer
+ *
+ * @param gestureRecognizer UITapGestureRecognizer*.
+ */
+
+- (void)tapRecognizerMethod:(UITapGestureRecognizer *)gestureRecognizer {
+    UIView *tappedView = nil;
+    if (self.tapRecognizer == gestureRecognizer) {
+        if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+            tappedView = [gestureRecognizer.view hitTest:[gestureRecognizer locationInView:gestureRecognizer.view] withEvent:nil];
+            if (tappedView != nil) {
+                BOOL isChild = [self viewIsChildViewOfClassView:tappedView viewClass:[self class]];
+                if (!isChild && [self isOpen]) {
+                    [self closePanel:self.sourceView parentFrame:self.frame duration:self.animationDurationPan ratio:self.ratio  block:^{
+                        if (_delegate) {
+                            if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
+                                [_delegate didlClosePanelWithGesture:self];
+                            }
+                        }
+                    }];
+                }
+            }
+        }
+    }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+#pragma mask - Helpers
+
+-(CGRect) rectFromRatio:(CGRect) frame ratio:(CGFloat) ratio {
+    CGFloat newHeight = frame.size.height * CLAMP(ratio, 0.0, 1.0);
+    CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - newHeight , frame.size.width, newHeight);
+    return rect;
+}
+
+-(BOOL) viewIsChildViewOfClassView:(UIView*) view  viewClass:(Class) viewClass
+{
+    if ([view isKindOfClass:viewClass]) {
+        return YES;
+    }
+    
+    UIView * superview = view.superview;
+    while (superview != nil) {
+        if([superview isKindOfClass:viewClass]) return YES;
+        superview = superview.superview;
+    }
+    
+    return NO;
+    
+}
+
 
 #pragma mark - Public Properties
 
@@ -198,11 +220,7 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
     return (self.effectView != nil);
 }
 
--(CGRect) rectFromRatio:(CGRect) frame ratio:(CGFloat) ratio {
-    CGFloat newHeight = frame.size.height * CLAMP(ratio, 0.0, 1.0);
-    CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - newHeight , frame.size.width, newHeight);
-    return rect;
-}
+
 -(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
@@ -314,12 +332,12 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
         return;
     }
     CGPoint translatedPoint = [sender translationInView:self];
-    //CGPoint translatedVelocity = [sender velocityInView:self];
+    CGPoint translatedVelocity = [sender velocityInView:self];
     if ([sender state] == UIGestureRecognizerStateBegan) {
         self.originalPanFrame = [self frame];
     } else if([sender state] == UIGestureRecognizerStateChanged) {
         CGFloat newOriginY = self.originalPanFrame.origin.y+translatedPoint.y;
-        if (newOriginY > 0) {
+        if (newOriginY > 0 && translatedVelocity.y > 0) {
             self.lastChangePanFrame = CGRectMake(self.originalPanFrame.origin.x,
                                              newOriginY ,
                                              self.originalPanFrame.size.width,
@@ -339,23 +357,24 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
               [sender state] == UIGestureRecognizerStateFailed) {
         
         CGFloat offset = self.lastChangePanFrame.origin.y - self.originalPanFrame.origin.y;
-        if (offset > 0) {
-            
+        if (offset > 0 && translatedVelocity.y > 0) {
             CGRect targetFrame = CGRectMake(self.originalPanFrame.origin.x,
                                             self.lastChangePanFrame.origin.y,
                                             self.originalPanFrame.size.width,
                                             self.originalPanFrame.size.height);
-            
             self.effectView.frame = self.originalPanFrame;
             if (offset > (self.effectView.bounds.size.height * 0.10)) { // 10%
-                
-                CGFloat adjustedRatio  = ((self.originalPanFrame.size.height - offset) / self.originalPanFrame.size.height);
-                //adjustedRatio += (1.0 - self.ratio);
+                CGFloat adjustedRatio  =  1.0;
+                if (self.ratio < 1.0) {
+                    adjustedRatio = ((self.originalPanFrame.size.height - offset) / self.originalPanFrame.size.height);
+                  //adjustedRatio += (1.0 - self.ratio)
+                }
                 
                 //
                 // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
                 //
-                NSTimeInterval  animationDuration = self.animationDurationPan * (1.0  - fabs(offset / self.effectView.bounds.size.height));
+                
+                const NSTimeInterval  animationDuration = self.animationDurationPan * (1.0  - fabs(offset / self.effectView.bounds.size.height));
                 [self closePanel:self.sourceView parentFrame:self.frame duration:animationDuration ratio:adjustedRatio  block:^{
                     if (_delegate) {
                         if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
@@ -374,7 +393,18 @@ BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
                                      [self.effectView layoutIfNeeded];
                                  } completion:nil];
             }
+        } else {
+            self.effectView.frame = self.originalPanFrame;
+            [UIView animateWithDuration:0.3
+                                  delay:0.2
+                 usingSpringWithDamping:1.0
+                  initialSpringVelocity:1.0
+                                options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^{
+                                 [self.effectView layoutIfNeeded];
+                             } completion:nil];
         }
+        
         self.lastChangePanFrame = CGRectZero;
         self.originalPanFrame   = CGRectZero;
     }
