@@ -48,29 +48,95 @@
         self.ratio               =  0;
         self.originalPanFrame    = CGRectZero;
         self.lastChangePanFrame  = CGRectZero;
-    
+        
         
     }
     return self;
 
 }
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    [super touchesBegan:touches withEvent:event];
 
-    UITouch * touch = touches.allObjects.firstObject;
-    CGPoint location = [touch locationInView:self];
-    if (!CGRectContainsPoint(self.frame,location)) {
-        // close;
-    }else {
+#pragma mask - UITapGestureRecognizer method
 
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    return touch.view != self;
+}
+
+/**!
+ * @brief Tap recognizer
+ *
+ * @param gestureRecognizer UITapGestureRecognizer*.
+ */
+
+- (void)tapRecognizerMethod:(UITapGestureRecognizer *)gestureRecognizer {
+    UIView *tappedView = nil;
+    if (self.tapRecognizer == gestureRecognizer) {
+        if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+            tappedView = [gestureRecognizer.view hitTest:[gestureRecognizer locationInView:gestureRecognizer.view] withEvent:nil];
+            if (tappedView != nil) {
+                BOOL isChild = viewIsChildViewOfClassView(tappedView, [self class]);
+                if (!isChild && [self isOpen]) {
+                    [self closePanel:self.sourceView parentFrame:self.frame duration:self.animationDurationPan ratio:self.ratio  block:^{
+                        if (_delegate) {
+                            if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
+                                [_delegate didlClosePanelWithGesture:self];
+                            }
+                        }
+                    }];
+                }
+            }
+        }
+    }
+}
+
+#pragma mask - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+
+BOOL viewIsChildViewOfClassView(UIView* view, Class viewClass){
+    if ([view isKindOfClass:viewClass]) {
+        return YES;
     }
     
+    UIView * superview = view.superview;
+    while (superview != nil) {
+        if([superview isKindOfClass:viewClass]) return YES;
+        superview = superview.superview;
+    }
+    
+    return NO;
+    
 }
+
+- (void)willMoveToSuperview:(UIView *)newSuperview {
+    if (newSuperview != nil) {
+         [super willMoveToSuperview:newSuperview];
+        //
+        // Setup the gesture recognize
+        //
+        self.tapRecognizer                       = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapRecognizerMethod:)];
+        self.tapRecognizer.delegate              = self;
+        self.tapRecognizer.numberOfTapsRequired  = 1;
+        // https://stackoverflow.com/a/9248827/6387073
+        self.tapRecognizer.cancelsTouchesInView  = NO;
+        //
+        // Add to the main view.
+        //
+        [newSuperview addGestureRecognizer:self.tapRecognizer];
+    } else {
+         [self.tapRecognizer.view removeGestureRecognizer:self.tapRecognizer];
+         [super willMoveToSuperview:newSuperview];
+    }
+}
+
 
 
 -(void) didMoveToSuperview {
     [super didMoveToSuperview];
     [self setCornerRadius:self.cornerRadii corner:(UIRectCornerTopLeft|UIRectCornerTopRight)];
+
 }
 
 
@@ -133,7 +199,7 @@
 }
 
 -(CGRect) rectFromRatio:(CGRect) frame ratio:(CGFloat) ratio {
-    CGFloat newHeight = frame.size.height * CLAMP(ratio, 0, 1);
+    CGFloat newHeight = frame.size.height * CLAMP(ratio, 0.0, 1.0);
     CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - newHeight , frame.size.width, newHeight);
     return rect;
 }

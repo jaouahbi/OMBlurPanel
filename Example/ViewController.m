@@ -99,7 +99,7 @@ alpha:1.0]
 
 -(void) didTouchUpInside:(id)sender {
     if (![self.panelView isOpen]) {
-        [self.panelView openPanel:self.floatingButton parentFrame:self.view.frame duration:10.0 ratio:0.80 block:^{
+        [self.panelView openPanel:self.floatingButton parentFrame:self.view.frame duration:2.0 ratio:0.80 block:^{
             self.floatingButton.hidden = YES;
         }];
     }
