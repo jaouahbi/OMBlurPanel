@@ -79,7 +79,7 @@ alpha:1.0]
 }
 
 - (void)didClosePanel:(OMBlurPanel *)panel {
-    
+    self.floatingButton.hidden = NO;
 }
 
 
@@ -94,21 +94,17 @@ alpha:1.0]
 
 
 - (void)willOpenPanel:(OMBlurPanel *)panel {
-
+    self.floatingButton.hidden = YES;
 }
 
 -(void) didTouchUpInside:(id)sender {
     if (![self.panelView isOpen]) {
-        [self.panelView openPanel:self.floatingButton parentFrame:self.view.frame duration:2.0 ratio:1.0 block:^{
-            self.floatingButton.hidden = YES;
-        }];
+        [self.panelView openPanel:self.floatingButton duration:2.0 ratio:0.5 block:nil];
     }
 }
 -(void) didCloseTouchUpInside:(id)sender {
     if ([self.panelView isOpen]) {
-        [self.panelView closePanel:self.floatingButton parentFrame:self.view.frame duration:1.0 block:^{
-            self.floatingButton.hidden = NO;
-        }];
+        [self.panelView closePanel:self.floatingButton duration:1.0 block:nil];
     }
 }
 - (void)animateFloatingButtonButton:(BOOL)willAnimate{
@@ -169,7 +165,7 @@ alpha:1.0]
     [appWindow addConstraints:fixedHeightButton];
     
     //
-    // Set the Bottom of the auraButton, and center on X
+    // Set the Bottom of the button, and center on X
     //
     
     NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
@@ -198,7 +194,7 @@ alpha:1.0]
     self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark];
     if (self.panelView != nil) {
         [self.view addSubview:self.panelView];
-        _panelView.delegate = self;
+        self.panelView.delegate = self;
         
         [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
                                                               attribute:NSLayoutAttributeTop
@@ -231,23 +227,13 @@ alpha:1.0]
                                                               attribute:NSLayoutAttributeTrailing
                                                              multiplier:1
                                                                constant:0]];
-        UIColor * color3 = COLOR_FROM_RGB(0x4AC7F0);
-        UIColor * color2 = COLOR_FROM_RGB(0x10AFE3);
-        UIColor * color1 = COLOR_FROM_RGB(0x00A7E0);
-        UIColor * color0 = COLOR_FROM_RGB(0x008FDB);
-        
-        //
-        // Set the diagonal gradient colors
-        //
-        
-        [self.panelView setColors:@[(id)color3.CGColor,
-                                    (id)color2.CGColor,
-                                    (id)color1.CGColor,
-                                    (id)color0.CGColor]];
+
+        UIColor * color1 = COLOR_FROM_RGB(0x20002c);
+        UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
+        [self.panelView setColors:@[(id)color1.CGColor, (id)color2.CGColor]];
         
         CGSize closeButtonSize    = CGSizeMake(24, 12);
         UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
-        //self.buttonClose.contentEdgeInsets = UIEdgeInsetsMake(12, 16, 12, 16);
         self.buttonClose = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.buttonClose setBackgroundImage:backgroundImage forState:UIControlStateNormal];
         CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);

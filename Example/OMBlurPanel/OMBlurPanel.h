@@ -28,35 +28,32 @@
  */
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style;
 
--(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) targetFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block;
+-(void) closePanel:(UIView*) sourceView duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block;
 /**!
  * @brief Close the panel
  *
  * @param sourceView UIView
- * @param parentFrame CGRect
  * @param duration NSTimeInterval
  * @param block Completion block
  */
--(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block;
+-(void) closePanel:(UIView*) sourceView  duration:(NSTimeInterval) duration block:(void (^)(void))block;
 /**!
  * @brief Open the panel
  *
  * @param sourceView UIView - The view used as source of the mask animation.
- * @param parentFrame CGRect
  * @param duration NSTimeInterval
  * @param block Completion block
  */
--(void) openPanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block ;
+-(void) openPanel:(UIView*) sourceView duration:(NSTimeInterval) duration block:(void (^)(void))block ;
 /**!
  * @brief Open the panel
  *
  * @param sourceView UIView
- * @param parentFrame CGRect
  * @param duration NSTimeInterval
  * @param ratio CGFloat
  * @param block Completion block
  */
--(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)parentFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
+-(void) openPanel:(UIView*) sourceView duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block;
 /**!
  * @brief Panel open state.
  *
@@ -73,5 +70,6 @@
 @property(assign,nonatomic) CGSize cornerRadii;
 @property(weak,nonatomic) id<OMBlurPanelDelegate> delegate;
 @property(assign,nonatomic) BOOL allowCloseGesture;
+@property(assign,nonatomic) CGFloat minimunPanFactor;
 
 @end

@@ -38,7 +38,7 @@
 
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style{
     if(self = [super initWithFrame:frame]) {
-       [self defaultInitWithStyle:UIBlurEffectStyleDark];
+        [self defaultInitWithStyle:UIBlurEffectStyleDark];
     }
     return self;
 }
@@ -66,6 +66,7 @@
     self.ratio               =  0;
     self.originalPanFrame    = CGRectZero;
     self.lastChangePanFrame  = CGRectZero;
+    self.minimunPanFactor    = 0.1;
 }
 
 - (void)willMoveToSuperview:(UIView *)newSuperview {
@@ -145,7 +146,7 @@
             if (tappedView != nil) {
                 BOOL isChild = [self viewIsChildViewOfClassView:tappedView viewClass:[self class]];
                 if (!isChild && [self isOpen]) {
-                    [self closePanel:self.sourceView parentFrame:self.frame duration:self.animationDurationPan ratio:self.ratio  block:^{
+                    [self closePanel:self.sourceView duration:self.animationDurationPan ratio:self.ratio  block:^{
                         if (_delegate) {
                             if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
                                 [_delegate didlClosePanelWithGesture:self];
@@ -170,12 +171,10 @@
     return rect;
 }
 
--(BOOL) viewIsChildViewOfClassView:(UIView*) view  viewClass:(Class) viewClass
-{
+-(BOOL) viewIsChildViewOfClassView:(UIView*) view  viewClass:(Class) viewClass {
     if ([view isKindOfClass:viewClass]) {
         return YES;
     }
-    
     UIView * superview = view.superview;
     while (superview != nil) {
         if([superview isKindOfClass:viewClass]) return YES;
@@ -221,19 +220,15 @@
 }
 
 
--(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
+-(void) closePanel:(UIView*) sourceView duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
-    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
-    [self closePanel:sourceView parentFrame:parentFrame duration:duration ratio:self.ratio block:block];
+    [self closePanel:sourceView duration:duration ratio:self.ratio block:block];
 }
 
--(void) closePanel:(UIView*) sourceView parentFrame:(CGRect) parentFrame duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block {
+-(void) closePanel:(UIView*) sourceView duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
-    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
     NSParameterAssert(self.effectView);
     if (self.effectView == nil) return;
     
@@ -245,43 +240,44 @@
     //
     // Animate the mask (reverse).
     //
-
-    CGFloat circleRadius =  ((parentFrame.size.height - parentFrame.origin.y)  - sourceView.bounds.size.height) * ratio;
-    [self.effectView animateMaskWithView:sourceView
-                            circleRadius:circleRadius
+    
+    CGFloat maxRadius =  ((self.superview.frame.size.height - self.superview.frame.origin.y)  - sourceView.bounds.size.height) * ratio;
+    CGFloat minRadius = sourceView.bounds.size.height * 0.5;
+ 
+  
+    CGPoint sourceCenter =CGPointMake(sourceView.frame.origin.x+sourceView.frame.size.width*0.5,sourceView.frame.origin.y-sourceView.frame.size.height*0.5);
+    [self animateMaskWithCenter:sourceCenter
+                            maxRadius:maxRadius
+                               minRadius:minRadius
                                    ratio:ratio
                                  reverse:YES
                                 duration:duration
                                 delegate:nil block:^{
-        self.frame = CGRectZero;
-        [self.effectView removeFromSuperview];
-        self.effectView  = nil;
-        if (block) {
-            block();
-        }
-        if (_delegate != nil) {
-            if ([_delegate respondsToSelector:@selector(didClosePanel:)]) {
-                [_delegate didClosePanel:self];
-            }
-        }
-    }];
+                                    self.frame = CGRectZero;
+                                    [self.effectView removeFromSuperview];
+                                    self.effectView  = nil;
+                                    if (block) {
+                                        block();
+                                    }
+                                    if (_delegate != nil) {
+                                        if ([_delegate respondsToSelector:@selector(didClosePanel:)]) {
+                                            [_delegate didClosePanel:self];
+                                        }
+                                    }
+                                }];
 }
 
 
--(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)parentFrame duration:(NSTimeInterval) duration block:(void (^)(void))block {
+-(void) openPanel:(UIView*) sourceView  duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
-    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
-    [self openPanel:sourceView parentFrame:parentFrame duration:duration ratio:1.0 block:block];
+   [self openPanel:sourceView duration:duration ratio:1.0 block:block];
 }
 
 
--(void) openPanel:(UIView*) sourceView parentFrame:(CGRect)parentFrame duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
+-(void) openPanel:(UIView*) sourceView duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
-    NSParameterAssert(!CGRectEqualToRect(parentFrame, CGRectZero));
-    if(CGRectEqualToRect(parentFrame, CGRectZero)) return;
     
     self.ratio                = CLAMP(ratio, 0.0, 1.0);
     self.animationDurationPan = duration;
@@ -299,32 +295,37 @@
     // Create the blur view
     //
     self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
+    [self layoutIfNeeded];
     //
     // Calculate the target frame;
     //
-    self.frame      = [self rectFromRatio:parentFrame ratio:self.ratio];
-    CGFloat circleRadius = parentFrame.size.height * self.ratio;
+    self.frame        = [self rectFromRatio:self.superview.frame ratio:self.ratio];
+    CGFloat maxRadius = self.superview.frame.size.height * self.ratio;
+    CGFloat minRadius = sourceView.bounds.size.height * 0.5;
+    
     
     //
     // Animate the mask.
     //
+    CGPoint sourceCenter =CGPointMake(sourceView.frame.origin.x+sourceView.frame.size.width*0.5,sourceView.frame.origin.y-sourceView.frame.size.height*0.5);
     
-    [self.effectView animateMaskWithView:sourceView
-                            circleRadius:circleRadius
+    [self animateMaskWithCenter: sourceCenter
+                            maxRadius:maxRadius
+                               minRadius:minRadius
                                    ratio:self.ratio
                                  reverse:NO
                                 duration:duration
                                 delegate:nil
                                    block:^{
-        if (block) {
-            block();
-        }
-        if (_delegate != nil) {
-            if([_delegate respondsToSelector:@selector(didOpenPanel:)]) {
-                [_delegate didOpenPanel:self];
-            }
-        }
-    }];
+                                       if (block) {
+                                           block();
+                                       }
+                                       if (_delegate != nil) {
+                                           if([_delegate respondsToSelector:@selector(didOpenPanel:)]) {
+                                               [_delegate didOpenPanel:self];
+                                           }
+                                       }
+                                   }];
 }
 
 -(void) handlePanGesture:(UIPanGestureRecognizer*)sender {
@@ -334,15 +335,15 @@
     CGPoint translatedPoint = [sender translationInView:self];
     CGPoint translatedVelocity = [sender velocityInView:self];
     if ([sender state] == UIGestureRecognizerStateBegan) {
-        self.originalPanFrame = [self frame];
+        _originalPanFrame = [self.effectView frame];
     } else if([sender state] == UIGestureRecognizerStateChanged) {
-        CGFloat newOriginY = self.originalPanFrame.origin.y+translatedPoint.y;
+        CGFloat newOriginY = _originalPanFrame.origin.y+translatedPoint.y;
         if (newOriginY > 0 && translatedVelocity.y > 0) {
-            self.lastChangePanFrame = CGRectMake(self.originalPanFrame.origin.x,
+            _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
                                              newOriginY ,
-                                             self.originalPanFrame.size.width,
-                                             self.originalPanFrame.size.height);
-            self.effectView.frame = self.lastChangePanFrame;
+                                             _originalPanFrame.size.width,
+                                             _originalPanFrame.size.height);
+            self.effectView.frame = _lastChangePanFrame;
             [UIView animateWithDuration:0.1
                                   delay:0.0
                  usingSpringWithDamping:0.53
@@ -356,26 +357,27 @@
               [sender state] == UIGestureRecognizerStateCancelled ||
               [sender state] == UIGestureRecognizerStateFailed) {
         
-        CGFloat offset = self.lastChangePanFrame.origin.y - self.originalPanFrame.origin.y;
+        CGFloat offset = _lastChangePanFrame.origin.y - _originalPanFrame.origin.y;
         if (offset > 0 && translatedVelocity.y > 0) {
-            CGRect targetFrame = CGRectMake(self.originalPanFrame.origin.x,
-                                            self.lastChangePanFrame.origin.y,
-                                            self.originalPanFrame.size.width,
-                                            self.originalPanFrame.size.height);
-            self.effectView.frame = self.originalPanFrame;
-            if (offset > (self.effectView.bounds.size.height * 0.10)) { // 10%
-                CGFloat adjustedRatio  =  1.0;
-                if (self.ratio < 1.0) {
-                    adjustedRatio = ((self.originalPanFrame.size.height - offset) / self.originalPanFrame.size.height);
-                  //adjustedRatio += (1.0 - self.ratio)
-                }
-                
+            CGRect targetFrame = CGRectMake(_originalPanFrame.origin.x,
+                                            _lastChangePanFrame.origin.y,
+                                            _originalPanFrame.size.width,
+                                            _originalPanFrame.size.height);
+             self.effectView.frame = targetFrame;
+            [UIView animateWithDuration:0.1
+                                  delay:0.0
+                 usingSpringWithDamping:0.53
+                  initialSpringVelocity:1.0
+                                options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^{
+                                 [self.effectView layoutIfNeeded];
+                             } completion:nil];
+            if (offset > (self.effectView.bounds.size.height * self.minimunPanFactor)) { // 5%
                 //
                 // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
                 //
-                
-                const NSTimeInterval  animationDuration = self.animationDurationPan * (1.0  - fabs(offset / self.effectView.bounds.size.height));
-                [self closePanel:self.sourceView parentFrame:self.frame duration:animationDuration ratio:adjustedRatio  block:^{
+                NSTimeInterval  animationDuration = 1 * (1.0  - fabs(offset / self.effectView.bounds.size.height));
+                [self closePanel:self.sourceView  duration:animationDuration block:^{
                     if (_delegate) {
                         if ([_delegate respondsToSelector:@selector(didlClosePanelWithGesture:)]) {
                             [_delegate didlClosePanelWithGesture:self];
@@ -383,7 +385,7 @@
                     }
                 }];
             } else {
-                self.effectView.frame = self.originalPanFrame;
+                self.effectView.frame = _originalPanFrame;
                 [UIView animateWithDuration:0.3
                                       delay:0.2
                      usingSpringWithDamping:1.0
@@ -394,7 +396,7 @@
                                  } completion:nil];
             }
         } else {
-            self.effectView.frame = self.originalPanFrame;
+            self.effectView.frame = _originalPanFrame;
             [UIView animateWithDuration:0.3
                                   delay:0.2
                  usingSpringWithDamping:1.0
@@ -404,10 +406,8 @@
                                  [self.effectView layoutIfNeeded];
                              } completion:nil];
         }
-        
-        self.lastChangePanFrame = CGRectZero;
-        self.originalPanFrame   = CGRectZero;
+        _lastChangePanFrame = CGRectZero;
+        _originalPanFrame   = CGRectZero;
     }
 }
-
 @end

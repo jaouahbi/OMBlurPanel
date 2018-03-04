@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 @interface UIView(AnimationCircleWithMask)
-
--(void) animateMaskWithView:(UIView*) sourceView
-               circleRadius:(CGFloat) circleRadius
+-(void) animateMaskWithCenter:(CGPoint) center
+                  maxRadius:(CGFloat) maxRadius
+                  minRadius:(CGFloat) minRadius
                       ratio:(CGFloat) ratio
                     reverse:(BOOL) reverse
                    duration:(NSTimeInterval) duration

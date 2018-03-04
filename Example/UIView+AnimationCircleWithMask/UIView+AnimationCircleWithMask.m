@@ -16,8 +16,12 @@
 
 #define DEGREES_TO_RADIANS(degrees) (M_PI*degrees/180)
 
+CGFloat dist(CGPoint p2,CGPoint p1){
 
-const CGFloat MSPButtonDownMarginSpace = 8;
+    CGFloat xDist = (p2.x - p1.x); //[2]
+    CGFloat yDist = (p2.y - p1.y); //[3]
+    return  sqrt((xDist * xDist) + (yDist * yDist)); //[4]
+}
 
 @implementation UIView(AnimationCircleWithMask)
 
@@ -32,8 +36,9 @@ const CGFloat MSPButtonDownMarginSpace = 8;
  * @param void (^)(void) block
  */
 
--(void) animateMaskWithView:(UIView*) sourceView
-               circleRadius:(CGFloat) circleRadius
+-(void) animateMaskWithCenter: (CGPoint) center
+               maxRadius:(CGFloat) maxRadius
+                    minRadius:(CGFloat) minRadius
                       ratio:(CGFloat) ratio
                     reverse:(BOOL) reverse
                    duration:(NSTimeInterval) duration
@@ -42,33 +47,28 @@ const CGFloat MSPButtonDownMarginSpace = 8;
 
     UIBezierPath * maskPath     = [UIBezierPath new];
     UIBezierPath * circlePath   = [UIBezierPath new];
-    
-    CGFloat buttonFrameHeight   = sourceView.bounds.size.height;
-    CGPoint buttonCenter        = sourceView.center;
-    CGFloat maskRadius          = buttonFrameHeight * 0.5;
-    CGPoint center              = buttonCenter;
-    
+
     //
     // Calculate the center position for other ratios than 1.0
     //
     
-     center = CGPointMake(center.x ,  ratio * center.y);
+     center = CGPointMake(center.x ,  center.y * ratio);
     
     //
     // Create the paths
     //
     
-    [maskPath addArcWithCenter:center radius:maskRadius startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
-    [maskPath addArcWithCenter:center radius:maskRadius startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
-    [maskPath addArcWithCenter:center radius:maskRadius startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
-    [maskPath addArcWithCenter:center radius:maskRadius startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
+    [maskPath addArcWithCenter:center radius:minRadius startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
+    [maskPath addArcWithCenter:center radius:minRadius startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
+    [maskPath addArcWithCenter:center radius:minRadius startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
+    [maskPath addArcWithCenter:center radius:minRadius startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
     [maskPath closePath];
     
     
-    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
-    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
-    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
-    [circlePath addArcWithCenter:center radius:circleRadius startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
+    [circlePath addArcWithCenter:center radius:maxRadius startAngle:DEGREES_TO_RADIANS(180) endAngle:DEGREES_TO_RADIANS(270) clockwise:true];
+    [circlePath addArcWithCenter:center radius:maxRadius startAngle:DEGREES_TO_RADIANS(270) endAngle:DEGREES_TO_RADIANS(0) clockwise:true];
+    [circlePath addArcWithCenter:center radius:maxRadius startAngle:DEGREES_TO_RADIANS(0) endAngle:DEGREES_TO_RADIANS(90) clockwise:true];
+    [circlePath addArcWithCenter:center radius:maxRadius startAngle:DEGREES_TO_RADIANS(90) endAngle:DEGREES_TO_RADIANS(180) clockwise:true];
     [circlePath closePath];
     
     //
@@ -81,8 +81,8 @@ const CGFloat MSPButtonDownMarginSpace = 8;
     NSLog(@"mask %@ circle %@, target radius:%f source radius:%f center:%@",
          NSStringFromCGRect(maskBounds),
          NSStringFromCGRect(circleBounds),
-         maskRadius,
-         circleRadius,
+         minRadius,
+         maxRadius,
          NSStringFromCGPoint(center));
     
     //
