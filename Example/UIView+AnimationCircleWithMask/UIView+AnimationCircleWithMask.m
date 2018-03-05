@@ -2,26 +2,13 @@
 //  UIView+AnimationCircleWithMask.m
 //  Jorge Ouahbi
 //
-//  Created by Desarrollo on 15/2/18.
+//  Created by Jorge Ouahbi on 15/2/18.
 //  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
 #import "UIView+AnimationCircleWithMask.h"
 
-#ifdef MODULE_PREFIX
-#undef MODULE_PREFIX
-#endif
-
-#define MODULE_PREFIX @"VIEWMSK"
-
 #define DEGREES_TO_RADIANS(degrees) (M_PI*degrees/180)
-
-CGFloat dist(CGPoint p2,CGPoint p1){
-
-    CGFloat xDist = (p2.x - p1.x); //[2]
-    CGFloat yDist = (p2.y - p1.y); //[3]
-    return  sqrt((xDist * xDist) + (yDist * yDist)); //[4]
-}
 
 @implementation UIView(AnimationCircleWithMask)
 
