@@ -14,7 +14,6 @@
 -(void) didOpenPanel:(OMBlurPanel*) panel;
 -(void) willClosePanel:(OMBlurPanel*) panel;
 -(void) willOpenPanel:(OMBlurPanel*) panel;
-
 -(void) didlClosePanelWithGesture:(OMBlurPanel*) panel;
 @end
 
@@ -27,16 +26,21 @@
  * @return self
  */
 -(instancetype) initWithFrame:(CGRect)frame style:(UIBlurEffectStyle)style;
-
--(void) closePanel:(UIView*) sourceView duration:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block;
 /**!
  * @brief Close the panel
  *
- * @param sourceView UIView
+ * @param duration NSTimeInterval
+ * @param ratio CGFloat
+ * @param block Completion block
+ */
+-(void) closePanel:(NSTimeInterval) duration  ratio:(CGFloat) ratio  block:(void (^)(void))block;
+/**!
+ * @brief Close the panel
+ *
  * @param duration NSTimeInterval
  * @param block Completion block
  */
--(void) closePanel:(UIView*) sourceView  duration:(NSTimeInterval) duration block:(void (^)(void))block;
+-(void) closePanel:(NSTimeInterval) duration block:(void (^)(void))block;
 /**!
  * @brief Open the panel
  *
@@ -65,7 +69,7 @@
 
 @property(strong,nonatomic) UIVisualEffectView* effectView;
 @property(strong,nonatomic) UIView *contentView;
-@property(strong,nonatomic) NSArray *colors;
+
 // Must be set before add to the superview.
 @property(assign,nonatomic) CGSize cornerRadii;
 @property(weak,nonatomic) id<OMBlurPanelDelegate> delegate;

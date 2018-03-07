@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C936A01B204DDB380013E009 /* UIView+safeArea.m in Sources */ = {isa = PBXBuildFile; fileRef = C936A01A204DDB370013E009 /* UIView+safeArea.m */; };
 		E95E0765203B1B6800BD8369 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E95E0756203B1B6800BD8369 /* Assets.xcassets */; };
 		E95E0767203B1B6800BD8369 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0758203B1B6800BD8369 /* ViewController.m */; };
 		E95E0768203B1B6800BD8369 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E95E0759203B1B6800BD8369 /* LaunchScreen.storyboard */; };
@@ -21,6 +22,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C936A019204DDB370013E009 /* UIView+safeArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+safeArea.h"; sourceTree = "<group>"; };
+		C936A01A204DDB370013E009 /* UIView+safeArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+safeArea.m"; sourceTree = "<group>"; };
 		C97DDD922038D7DE003039AE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E95E0754203B1B6800BD8369 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E95E0756203B1B6800BD8369 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -54,6 +57,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C936A018204DDB370013E009 /* UIView+Layout */ = {
+			isa = PBXGroup;
+			children = (
+				C936A019204DDB370013E009 /* UIView+safeArea.h */,
+				C936A01A204DDB370013E009 /* UIView+safeArea.m */,
+			);
+			path = "UIView+Layout";
+			sourceTree = "<group>";
+		};
 		C97DDD892038D7DE003039AE = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +85,7 @@
 		E95E0752203B1B6800BD8369 /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				C936A018204DDB370013E009 /* UIView+Layout */,
 				E9A61FF2204426A200CCD8CB /* UIVisualEffectView+Intensity */,
 				E9A61FE820441FF700CCD8CB /* UIView+CornerRounded */,
 				E95E077A203B220400BD8369 /* UIView+AnimationCircleWithMask */,
@@ -212,6 +225,7 @@
 				E95E077D203B220400BD8369 /* UIView+AnimationCircleWithMask.m in Sources */,
 				E95E0775203B1BD100BD8369 /* UIView+Blur.m in Sources */,
 				E95E076A203B1B6800BD8369 /* main.m in Sources */,
+				C936A01B204DDB380013E009 /* UIView+safeArea.m in Sources */,
 				E9A61FF5204426A300CCD8CB /* UIVisualEffectView+Intensity.m in Sources */,
 				E95E0771203B1BB500BD8369 /* OMBlurPanel.m in Sources */,
 				E9A61FEB20441FF700CCD8CB /* UIView+CornerRounded.m in Sources */,

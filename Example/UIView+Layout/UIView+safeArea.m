@@ -1,11 +1,11 @@
 //
-//  UIView+Layout.h
+//  UIView+safeArea.h
 //
 //  Created by Jorge Ouahbi on 26/2/18.
 //  Copyright © 2018 Jorge Ouahbi. All rights reserved.
 //
 
-#import "UIView+Layout.h"
+#import "UIView+safeArea.h"
 
 @implementation UIView(Layout)
 

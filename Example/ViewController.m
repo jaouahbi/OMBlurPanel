@@ -23,6 +23,8 @@ alpha:1.0]
 @property(strong,nonatomic) UIButton * floatingButton;
 @property(strong,nonatomic) UIButton * buttonClose;
 @property(strong,nonatomic) OMBlurPanel *panelView;
+@property(strong,nonatomic) CAGradientLayer *gradient;
+
 
 @end
 @implementation ViewController
@@ -36,42 +38,56 @@ alpha:1.0]
     [_webView setTranslatesAutoresizingMaskIntoConstraints:NO];
     
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_webView
-                                                     attribute:NSLayoutAttributeTop
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.view
-                                                     attribute:NSLayoutAttributeTop
-                                                    multiplier:1
-                                                      constant:0]];
+                                                          attribute:NSLayoutAttributeTop
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.view
+                                                          attribute:NSLayoutAttributeTop
+                                                         multiplier:1
+                                                           constant:0]];
     
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_webView
-                                                     attribute:NSLayoutAttributeBottom
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.view
-                                                     attribute:NSLayoutAttributeBottom
-                                                    multiplier:1
-                                                      constant:0]];
+                                                          attribute:NSLayoutAttributeBottom
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.view
+                                                          attribute:NSLayoutAttributeBottom
+                                                         multiplier:1
+                                                           constant:0]];
     
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_webView
-                                                     attribute:NSLayoutAttributeLeading
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.view
-                                                     attribute:NSLayoutAttributeLeading
-                                                    multiplier:1
-                                                      constant:0]];
+                                                          attribute:NSLayoutAttributeLeading
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.view
+                                                          attribute:NSLayoutAttributeLeading
+                                                         multiplier:1
+                                                           constant:0]];
     
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_webView
-                                                     attribute:NSLayoutAttributeTrailing
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.view
-                                                     attribute:NSLayoutAttributeTrailing
-                                                    multiplier:1
-                                                      constant:0]];
+                                                          attribute:NSLayoutAttributeTrailing
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.view
+                                                          attribute:NSLayoutAttributeTrailing
+                                                         multiplier:1
+                                                           constant:0]];
     
-
+    
     NSURL *url = [NSURL URLWithString:urlAddress];
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:url];
     
     [_webView loadRequest:requestObj];
+    UIColor * color1 = COLOR_FROM_RGB(0x20002c);
+    UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
+    NSArray *colors = @[(id)color1.CGColor,(id)color2.CGColor];
+    
+    self.gradient = [CAGradientLayer layer];
+    
+    
+    
+    self.gradient.startPoint = CGPointMake(1, 0);
+    self.gradient.endPoint   = CGPointMake(0, 1);
+    
+    
+    self.gradient.colors = colors;;
+    
     
 }
 -(void)didlClosePanelWithGesture:(OMBlurPanel *)panel {
@@ -89,7 +105,7 @@ alpha:1.0]
 
 
 - (void)willClosePanel:(OMBlurPanel *)panel {
-
+    
 }
 
 
@@ -104,7 +120,7 @@ alpha:1.0]
 }
 -(void) didCloseTouchUpInside:(id)sender {
     if ([self.panelView isOpen]) {
-        [self.panelView closePanel:self.floatingButton duration:1.0 block:nil];
+        [self.panelView closePanel:1.0 block:nil];
     }
 }
 - (void)animateFloatingButtonButton:(BOOL)willAnimate{
@@ -126,30 +142,43 @@ alpha:1.0]
 
 
 -(void) setUpFloatingButton {
-
+    
     //
     // Setup the floating button.
     //
     
-    _floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     
     
-    UIImage* backgroundImage = [UIImage imageNamed:@"floatingButton"];
-    CGSize backgroundImageSize = CGSizeMake(65, 65);
-    [_floatingButton setBackgroundImage:backgroundImage forState:UIControlStateNormal];
-    CGRect buttonFrame = CGRectMake(0, 0, backgroundImageSize.width, backgroundImageSize.height);
+    CGSize buttonSize = CGSizeMake(65, 65);
+    CGRect buttonFrame = CGRectMake(0, 0, buttonSize.width, buttonSize.height);
     [_floatingButton setFrame:buttonFrame];
     [_floatingButton addTarget:self action:@selector(didTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
     [_floatingButton setTranslatesAutoresizingMaskIntoConstraints:NO];
+    _floatingButton.layer.cornerRadius = buttonSize.height*0.5;
+    _floatingButton.layer.masksToBounds = YES;
     
+    UIColor * color1 = COLOR_FROM_RGB(0x20002c);
+    UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
+    
+    CAGradientLayer *gradientButton = [CAGradientLayer layer];
+    gradientButton.frame      = buttonFrame;
+    gradientButton.startPoint = CGPointMake(1, 0);
+    gradientButton.endPoint   = CGPointMake(0, 1);
+    gradientButton.colors     = @[(id)color1.CGColor,(id)color2.CGColor];;
+    UIGraphicsBeginImageContext(buttonSize);
+    [gradientButton renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.floatingButton setBackgroundImage:image forState:UIControlStateNormal];
     
     UIView * view = _floatingButton;
-    NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", backgroundImageSize.width]
+    NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", buttonSize.width]
                                                                          options:0
                                                                          metrics:nil
                                                                            views:NSDictionaryOfVariableBindings(view)];
     
-    NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", backgroundImageSize.height]
+    NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", buttonSize.height]
                                                                           options:0
                                                                           metrics:nil
                                                                             views:NSDictionaryOfVariableBindings(view)];
@@ -195,6 +224,7 @@ alpha:1.0]
     if (self.panelView != nil) {
         [self.view addSubview:self.panelView];
         self.panelView.delegate = self;
+        [self.panelView.contentView.layer insertSublayer:self.gradient atIndex:0];
         
         [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
                                                               attribute:NSLayoutAttributeTop
@@ -227,10 +257,7 @@ alpha:1.0]
                                                               attribute:NSLayoutAttributeTrailing
                                                              multiplier:1
                                                                constant:0]];
-
-        UIColor * color1 = COLOR_FROM_RGB(0x20002c);
-        UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
-        [self.panelView setColors:@[(id)color1.CGColor, (id)color2.CGColor]];
+        
         
         CGSize closeButtonSize    = CGSizeMake(24, 12);
         UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
@@ -239,7 +266,6 @@ alpha:1.0]
         CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
         [self.buttonClose setFrame:buttonFrame];
         [self.buttonClose addTarget:self action:@selector(didCloseTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
-        
         [self.buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
         UIView * view = self.buttonClose;
         NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", self.buttonClose.bounds.size.width]
@@ -255,7 +281,7 @@ alpha:1.0]
         [self.panelView.contentView addConstraints:fixedWidthButton];
         [self.panelView.contentView addConstraints:fixedHeightButton];
         
-//DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
+        //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
         
         NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
                                                                                relatedBy:NSLayoutRelationEqual
@@ -293,5 +319,11 @@ alpha:1.0]
     // Dispose of any resources that can be recreated.
 }
 
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    self.gradient.frame   = self.panelView.bounds;
+}
 
 @end
