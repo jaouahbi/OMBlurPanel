@@ -150,7 +150,6 @@ alpha:1.0]
     
     self.floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     
-    
     CGSize buttonSize = CGSizeMake(65, 65);
     CGRect buttonFrame = CGRectMake(0, 0, buttonSize.width, buttonSize.height);
     [_floatingButton setFrame:buttonFrame];
