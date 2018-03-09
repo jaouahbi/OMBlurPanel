@@ -56,7 +56,7 @@
 -(void) defaultInitWithStyle:(UIBlurEffectStyle)style {
     self.alpha               = 1.0;
     self.contentView         = [[UIView alloc] initWithFrame:self.frame];
-    self.contentView.alpha   = 0.68;
+    self.contentView.alpha   = 1;
     self.style               = style;
     self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.cornerRadii         = CGSizeMake(0, 8);
@@ -246,9 +246,13 @@
             [_delegate willOpenPanel:self];
         }
     }
+    
 
     self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
     [self layoutIfNeeded];
+    
+    BOOL direction = self.frame.origin.y > sourceView.frame.origin.y ;
+    
     
     const CGRect superviewFrame = self.superview.frame;
     const CGFloat maxRadius     = superviewFrame.size.height * self.currentRatio;

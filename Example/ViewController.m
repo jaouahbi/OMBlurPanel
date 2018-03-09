@@ -74,6 +74,7 @@ alpha:1.0]
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:url];
     
     [_webView loadRequest:requestObj];
+    
     UIColor * color1 = COLOR_FROM_RGB(0x20002c);
     UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
     NSArray *colors = @[(id)color1.CGColor,(id)color2.CGColor];
@@ -172,16 +173,6 @@ alpha:1.0]
     UIGraphicsEndImageContext();
     [self.floatingButton setBackgroundImage:image forState:UIControlStateNormal];
     
-    UIView * view = _floatingButton;
-    NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", buttonSize.width]
-                                                                         options:0
-                                                                         metrics:nil
-                                                                           views:NSDictionaryOfVariableBindings(view)];
-    
-    NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", buttonSize.height]
-                                                                          options:0
-                                                                          metrics:nil
-                                                                            views:NSDictionaryOfVariableBindings(view)];
     
     
     //DBG_BORDER_COLOR(_containerView.layer, [UIColor redColor]);
@@ -189,38 +180,52 @@ alpha:1.0]
     if (appWindow == nil) {
         return ;
     }
-    [appWindow addSubview:view];
-    [appWindow addConstraints:fixedWidthButton];
-    [appWindow addConstraints:fixedHeightButton];
+    [appWindow addSubview:self.floatingButton];
+
+    [self.floatingButton.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.floatingButton
+                                                                           attribute:NSLayoutAttributeHeight
+                                                                           relatedBy:NSLayoutRelationEqual
+                                                                              toItem:nil
+                                                                           attribute:NSLayoutAttributeNotAnAttribute
+                                                                          multiplier:1
+                                                                            constant:self.floatingButton.bounds.size.height]];
+    
+    [self.floatingButton.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.floatingButton
+                                                                           attribute:NSLayoutAttributeWidth
+                                                                           relatedBy:NSLayoutRelationEqual
+                                                                              toItem:nil
+                                                                           attribute:NSLayoutAttributeNotAnAttribute
+                                                                          multiplier:1
+                                                  constant:self.floatingButton.bounds.size.width]];
     
     //
     // Set the Bottom of the button, and center on X
     //
     
-    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
-                                                                           relatedBy:NSLayoutRelationEqual
-                                                                              toItem:view.superview
-                                                                           attribute:NSLayoutAttributeCenterX
-                                                                          multiplier:1.0
-                                                                            constant:0];
-    
-    
-    NSLayoutConstraint * bottonConstrain =  [NSLayoutConstraint constraintWithItem:view
-                                                                         attribute:NSLayoutAttributeBottom
-                                                                         relatedBy:NSLayoutRelationEqual
-                                                                            toItem:view.superview
-                                                                         attribute:NSLayoutAttributeBottom
-                                                                        multiplier:1.0
-                                                                          constant:-20];
-    
-    
-    [appWindow addConstraints:@[centerXConstraint, bottonConstrain]];
+//    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
+//                                                                           relatedBy:NSLayoutRelationEqual
+//                                                                              toItem:view.superview
+//                                                                           attribute:NSLayoutAttributeCenterX
+//                                                                          multiplier:1.0
+//                                                                            constant:0];
+//    
+//    
+//    NSLayoutConstraint * bottonConstrain =  [NSLayoutConstraint constraintWithItem:view
+//                                                                         attribute:NSLayoutAttributeBottom
+//                                                                         relatedBy:NSLayoutRelationEqual
+//                                                                            toItem:view.superview
+//                                                                         attribute:NSLayoutAttributeBottom
+//                                                                        multiplier:1.0
+//                                                                          constant:-20];
+//    
+//    
+//    [appWindow addConstraints:@[centerXConstraint, bottonConstrain]];
     
 }
 
 -(void) setupPanel {
     
-    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark];
+    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleLight];
     if (self.panelView != nil) {
         [self.view addSubview:self.panelView];
         self.panelView.delegate = self;
@@ -267,33 +272,50 @@ alpha:1.0]
         [self.buttonClose setFrame:buttonFrame];
         [self.buttonClose addTarget:self action:@selector(didCloseTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
         [self.buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
-        UIView * view = self.buttonClose;
-        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", self.buttonClose.bounds.size.width]
-                                                                             options:0
-                                                                             metrics:nil
-                                                                               views:NSDictionaryOfVariableBindings(view)];
+        [self.panelView.contentView addSubview:self.buttonClose];
+//        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", self.buttonClose.bounds.size.width]
+//                                                                             options:0
+//                                                                             metrics:nil
+//                                                                               views:NSDictionaryOfVariableBindings(view)];
         
-        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", self.buttonClose.bounds.size.height]
-                                                                              options:0
-                                                                              metrics:nil
-                                                                                views:NSDictionaryOfVariableBindings(view)];
-        [self.panelView.contentView addSubview:view];
-        [self.panelView.contentView addConstraints:fixedWidthButton];
-        [self.panelView.contentView addConstraints:fixedHeightButton];
+        
+        [self.buttonClose.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.buttonClose
+                                                         attribute:NSLayoutAttributeHeight
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:nil
+                                                         attribute:NSLayoutAttributeNotAnAttribute
+                                                        multiplier:1
+                                                          constant:self.buttonClose.bounds.size.height]];
+        
+        [self.buttonClose.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.buttonClose
+                                                                               attribute:NSLayoutAttributeWidth
+                                                                               relatedBy:NSLayoutRelationEqual
+                                                                                  toItem:nil
+                                                                               attribute:NSLayoutAttributeNotAnAttribute
+                                                                              multiplier:1
+                                                                                constant:self.buttonClose.bounds.size.width]];
+//
+//        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", self.buttonClose.bounds.size.height]
+//                                                                              options:0
+//                                                                              metrics:nil
+//                                                                                views:NSDictionaryOfVariableBindings(view)];
+
+       // [self.panelView.contentView addConstraints:fixedWidthButton];
+       // [self.panelView.contentView addConstraints:fixedHeightButton];
         
         //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
         
-        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
+        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:self.buttonClose attribute:NSLayoutAttributeCenterX
                                                                                relatedBy:NSLayoutRelationEqual
-                                                                                  toItem:view.superview
+                                                                                  toItem:self.buttonClose.superview
                                                                                attribute:NSLayoutAttributeCenterX
                                                                               multiplier:1.0
                                                                                 constant:0];
         
-        NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:view
+        NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.buttonClose
                                                                           attribute:NSLayoutAttributeTop
                                                                           relatedBy:NSLayoutRelationEqual
-                                                                             toItem:view.superview
+                                                                             toItem:self.buttonClose.superview
                                                                           attribute:NSLayoutAttributeTop
                                                                          multiplier:1.0
                                                                            constant:15];

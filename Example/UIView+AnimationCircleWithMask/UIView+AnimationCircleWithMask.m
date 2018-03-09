@@ -77,7 +77,7 @@
     //
     
     CAShapeLayer *maskLayer       = [CAShapeLayer layer];
-    maskLayer.frame               = self.bounds;
+    maskLayer.frame               = self.superview.bounds;
     maskLayer.path                = maskPath.CGPath;
     self.layer.mask               = maskLayer;
     
@@ -102,7 +102,7 @@
         }];
     }
     
-    [maskLayer addAnimation:animation forKey:@"MaskAnimation"];
+    [maskLayer addAnimation:animation forKey:@"maskAnimation"];
     if (!reverse) {
         [maskLayer setPath:[circlePath CGPath]];
     }

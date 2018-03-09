@@ -10,7 +10,8 @@
 #import "UIVisualEffectView+Intensity.h"
 
 @implementation UIView(Blur)
-
+//https://medium.com/@erikdkennedy/7-rules-for-creating-gorgeous-ui-part-2-430de537ba96
+//https://www.omnigroup.com/developer/how-to-make-text-in-a-uivisualeffectview-readable-on-any-background
 -(UIVisualEffectView *)addViewWithBlur:(UIView*) view style:(UIBlurEffectStyle) style addConstrainst:(BOOL)addConstrainst
 {
     // Blur effect
@@ -29,40 +30,77 @@
     // Add the vibrancy view to the blur view
     [contentView addSubview:vibrancyEffectView];
     // Add view to the vibrancy view
-    [contentView addSubview:view];
+    [vibrancyEffectView.contentView addSubview:view];
     
     if (addConstrainst) {
     
         [blurEffectView setTranslatesAutoresizingMaskIntoConstraints:NO];
         
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
+        [blurEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
                                                          attribute:NSLayoutAttributeTop
                                                          relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
+                                                            toItem:blurEffectView.superview
                                                          attribute:NSLayoutAttributeTop
                                                         multiplier:1
                                                           constant:0]];
         
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
+        [blurEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
                                                          attribute:NSLayoutAttributeBottom
                                                          relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
+                                                            toItem:blurEffectView.superview
                                                          attribute:NSLayoutAttributeBottom
                                                         multiplier:1
                                                           constant:0]];
         
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
+        [blurEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
                                                          attribute:NSLayoutAttributeLeading
                                                          relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
+                                                            toItem:blurEffectView.superview
                                                          attribute:NSLayoutAttributeLeading
                                                         multiplier:1
                                                           constant:0]];
         
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
+        [blurEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:blurEffectView
                                                          attribute:NSLayoutAttributeTrailing
                                                          relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
+                                                            toItem:blurEffectView.superview
+                                                         attribute:NSLayoutAttributeTrailing
+                                                        multiplier:1
+                                                          constant:0]];
+        
+        
+        // vibrancy
+        
+        [vibrancyEffectView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        
+        [vibrancyEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:vibrancyEffectView
+                                                         attribute:NSLayoutAttributeTop
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:vibrancyEffectView.superview
+                                                         attribute:NSLayoutAttributeTop
+                                                        multiplier:1
+                                                          constant:0]];
+        
+        [vibrancyEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:vibrancyEffectView
+                                                         attribute:NSLayoutAttributeBottom
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:vibrancyEffectView.superview
+                                                         attribute:NSLayoutAttributeBottom
+                                                        multiplier:1
+                                                          constant:0]];
+        
+        [vibrancyEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:vibrancyEffectView
+                                                         attribute:NSLayoutAttributeLeading
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:vibrancyEffectView.superview
+                                                         attribute:NSLayoutAttributeLeading
+                                                        multiplier:1
+                                                          constant:0]];
+        
+        [vibrancyEffectView.superview addConstraint:[NSLayoutConstraint constraintWithItem:vibrancyEffectView
+                                                         attribute:NSLayoutAttributeTrailing
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:vibrancyEffectView.superview
                                                          attribute:NSLayoutAttributeTrailing
                                                         multiplier:1
                                                           constant:0]];
