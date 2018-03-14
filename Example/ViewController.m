@@ -1,3 +1,4 @@
+
 //
 //  OMBlurPanel.m
 //  OMBlurPanel
@@ -11,6 +12,9 @@
 #include "UIView+AnimationCircleWithMask.h"
 
 
+#define TOP 0
+#define BOTTOM 1
+
 #define COLOR_FROM_RGB(rgbValue) \
 [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
 green:((float)((rgbValue & 0x00FF00) >>  8))/255.0 \
@@ -20,10 +24,10 @@ alpha:1.0]
 @interface ViewController ()<OMBlurPanelDelegate>
 
 @property(strong,nonatomic) UIWebView * webView;
-@property(strong,nonatomic) UIButton * floatingButton;
-@property(strong,nonatomic) UIButton * buttonClose;
-@property(strong,nonatomic) OMBlurPanel *panelView;
-@property(strong,nonatomic) CAGradientLayer *gradient;
+@property(strong,nonatomic) NSMutableArray<UIButton *> * floatingButtons;
+@property(strong,nonatomic) NSMutableArray<UIButton *>  * closeButtons;
+@property(strong,nonatomic) NSMutableArray<OMBlurPanel *> * panelViews;
+@property(strong,nonatomic) NSMutableArray<CAGradientLayer *> *gradient;
 
 
 @end
@@ -75,28 +79,51 @@ alpha:1.0]
     
     [_webView loadRequest:requestObj];
     
+    
+    self.gradient = [NSMutableArray array];
+    
+    
+    self.floatingButtons= [NSMutableArray array];;
+    self.closeButtons= [NSMutableArray array];;
+    self.panelViews= [NSMutableArray array];;
+    
+    
     UIColor * color1 = COLOR_FROM_RGB(0x20002c);
     UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
     NSArray *colors = @[(id)color1.CGColor,(id)color2.CGColor];
     
-    self.gradient = [CAGradientLayer layer];
+    
+    
+    [self.gradient addObject:[CAGradientLayer layer]];
+    [self.gradient addObject:[CAGradientLayer layer]];
+    self.gradient[TOP].startPoint = CGPointMake(1, 0);
+    self.gradient[TOP].endPoint   = CGPointMake(0, 1);
+    self.gradient[TOP].colors = colors;;
     
     
     
-    self.gradient.startPoint = CGPointMake(1, 0);
-    self.gradient.endPoint   = CGPointMake(0, 1);
+    UIColor * color21 = COLOR_FROM_RGB(0x1a2a6c);
+    UIColor * color22 = COLOR_FROM_RGB(0xb21f1f);
+    UIColor * color23 = COLOR_FROM_RGB(0xfdbb2d);
+    NSArray *colors2 = @[(id)color21.CGColor,(id)color22.CGColor,(id)color23.CGColor];
     
-    
-    self.gradient.colors = colors;;
-    
+    self.gradient[BOTTOM].startPoint = CGPointMake(1, 0);
+    self.gradient[BOTTOM].endPoint   = CGPointMake(0, 1);
+    self.gradient[BOTTOM].colors = colors2;
     
 }
 -(void)didlClosePanelWithGesture:(OMBlurPanel *)panel {
-    self.floatingButton.hidden = NO;
+    if(self.panelViews[TOP] == panel)
+        self.floatingButtons[TOP].hidden = NO;
+    else
+        self.floatingButtons[BOTTOM].hidden = NO;
 }
 
 - (void)didClosePanel:(OMBlurPanel *)panel {
-    self.floatingButton.hidden = NO;
+    if(self.panelViews[TOP] == panel)
+        self.floatingButtons[TOP].hidden = NO;
+    else
+        self.floatingButtons[BOTTOM].hidden = NO;
 }
 
 
@@ -111,22 +138,44 @@ alpha:1.0]
 
 
 - (void)willOpenPanel:(OMBlurPanel *)panel {
-    self.floatingButton.hidden = YES;
+    
+    if(self.panelViews[TOP] == panel)
+        self.floatingButtons[TOP].hidden = YES;
+    else
+        self.floatingButtons[BOTTOM].hidden = YES;
 }
 
--(void) didTouchUpInside:(id)sender {
-    if (![self.panelView isOpen]) {
-        [self.panelView openPanel:self.floatingButton duration:2.0 ratio:0.5 block:nil];
+-(void) didTouchUpInsideTop:(id)sender {
+    if (![self.panelViews[TOP] isOpen]) {
+        [self.panelViews[TOP] openPanel:self.floatingButtons[TOP] duration:2.0 ratio:0.5 block:nil];
     }
 }
--(void) didCloseTouchUpInside:(id)sender {
-    if ([self.panelView isOpen]) {
-        [self.panelView closePanel:1.0 block:nil];
+
+-(void) didTouchUpInsideBottom:(id)sender {
+    if (![self.panelViews[BOTTOM] isOpen]) {
+        [self.panelViews[BOTTOM] openPanel:self.floatingButtons[BOTTOM] duration:2.0 ratio:0.5 block:nil];
     }
 }
+
+-(void) didTouchUpInsideCloseTop:(id)sender {
+    if ([self.panelViews[TOP] isOpen]) {
+        [self.panelViews[TOP] closePanel:2.0 block:^{
+            
+        }];
+    }
+}
+
+-(void) didTouchUpInsideCloseBottom:(id)sender {
+    if ([self.panelViews[BOTTOM] isOpen]) {
+        [self.panelViews[BOTTOM] closePanel:2.0 block:^{
+            
+        }];
+    }
+}
+
 - (void)animateFloatingButtonButton:(BOOL)willAnimate{
     if (willAnimate) {
-        [self.floatingButton setEnabled:NO];
+        [self.floatingButtons[0] setEnabled:NO];
         
         CASpringAnimation* springRotation = [CASpringAnimation animationWithKeyPath:@"transform.rotation.z"];
         springRotation.toValue = [NSNumber numberWithFloat: M_PI * 2.0 /* full rotation*/];
@@ -134,103 +183,94 @@ alpha:1.0]
         springRotation.cumulative = YES;
         springRotation.repeatCount = INT_MAX;
         springRotation.damping = 8;
-        [self.floatingButton.layer addAnimation:springRotation forKey:@"rotationAnimation"];
+        [self.floatingButtons[0].layer addAnimation:springRotation forKey:@"rotationAnimation"];
     }else{
-        [self.floatingButton setEnabled:YES];
-        [self.floatingButton.layer removeAllAnimations];
+        [self.floatingButtons[0] setEnabled:YES];
+        [self.floatingButtons[0].layer removeAllAnimations];
     }
 }
 
 
--(void) setUpFloatingButton {
+-(UIButton*) addFloatingButton:(SEL) selector addToTop:(BOOL) addToTop{
     
     //
     // Setup the floating button.
     //
     
-    self.floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
     
     CGSize buttonSize = CGSizeMake(65, 65);
     CGRect buttonFrame = CGRectMake(0, 0, buttonSize.width, buttonSize.height);
-    [_floatingButton setFrame:buttonFrame];
-    [_floatingButton addTarget:self action:@selector(didTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
-    [_floatingButton setTranslatesAutoresizingMaskIntoConstraints:NO];
-    _floatingButton.layer.cornerRadius = buttonSize.height*0.5;
-    _floatingButton.layer.masksToBounds = YES;
+    [button setFrame:buttonFrame];
+    [button addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside ];
+    [button setTranslatesAutoresizingMaskIntoConstraints:NO];
+    button.layer.cornerRadius = buttonSize.height*0.5;
+    button.layer.masksToBounds = YES;
     
-    UIColor * color1 = COLOR_FROM_RGB(0x20002c);
-    UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
     
-    CAGradientLayer *gradientButton = [CAGradientLayer layer];
-    gradientButton.frame      = buttonFrame;
-    gradientButton.startPoint = CGPointMake(1, 0);
-    gradientButton.endPoint   = CGPointMake(0, 1);
-    gradientButton.colors     = @[(id)color1.CGColor,(id)color2.CGColor];;
-    UIGraphicsBeginImageContext(buttonSize);
-    [gradientButton renderInContext:UIGraphicsGetCurrentContext()];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    [self.floatingButton setBackgroundImage:image forState:UIControlStateNormal];
     
     
     
     //DBG_BORDER_COLOR(_containerView.layer, [UIColor redColor]);
     UIWindow * appWindow = [[UIApplication sharedApplication] keyWindow];
     if (appWindow == nil) {
-        return ;
+        return nil ;
     }
-    [appWindow addSubview:self.floatingButton];
-
-    [self.floatingButton.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.floatingButton
-                                                                           attribute:NSLayoutAttributeHeight
-                                                                           relatedBy:NSLayoutRelationEqual
-                                                                              toItem:nil
-                                                                           attribute:NSLayoutAttributeNotAnAttribute
-                                                                          multiplier:1
-                                                                            constant:self.floatingButton.bounds.size.height]];
+    [appWindow addSubview:button];
     
-    [self.floatingButton.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.floatingButton
-                                                                           attribute:NSLayoutAttributeWidth
-                                                                           relatedBy:NSLayoutRelationEqual
-                                                                              toItem:nil
-                                                                           attribute:NSLayoutAttributeNotAnAttribute
-                                                                          multiplier:1
-                                                  constant:self.floatingButton.bounds.size.width]];
+    [button.superview addConstraint:[NSLayoutConstraint constraintWithItem:button
+                                                                 attribute:NSLayoutAttributeHeight
+                                                                 relatedBy:NSLayoutRelationEqual
+                                                                    toItem:nil
+                                                                 attribute:NSLayoutAttributeNotAnAttribute
+                                                                multiplier:1
+                                                                  constant:button.bounds.size.height]];
+    
+    [button.superview addConstraint:[NSLayoutConstraint constraintWithItem:button
+                                                                 attribute:NSLayoutAttributeWidth
+                                                                 relatedBy:NSLayoutRelationEqual
+                                                                    toItem:nil
+                                                                 attribute:NSLayoutAttributeNotAnAttribute
+                                                                multiplier:1
+                                                                  constant:button.bounds.size.width]];
     
     //
     // Set the Bottom of the button, and center on X
     //
     
-//    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeCenterX
-//                                                                           relatedBy:NSLayoutRelationEqual
-//                                                                              toItem:view.superview
-//                                                                           attribute:NSLayoutAttributeCenterX
-//                                                                          multiplier:1.0
-//                                                                            constant:0];
-//    
-//    
-//    NSLayoutConstraint * bottonConstrain =  [NSLayoutConstraint constraintWithItem:view
-//                                                                         attribute:NSLayoutAttributeBottom
-//                                                                         relatedBy:NSLayoutRelationEqual
-//                                                                            toItem:view.superview
-//                                                                         attribute:NSLayoutAttributeBottom
-//                                                                        multiplier:1.0
-//                                                                          constant:-20];
-//    
-//    
-//    [appWindow addConstraints:@[centerXConstraint, bottonConstrain]];
+    NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:button
+                                                                           attribute:NSLayoutAttributeCenterX
+                                                                           relatedBy:NSLayoutRelationEqual
+                                                                              toItem:button.superview
+                                                                           attribute:NSLayoutAttributeCenterX
+                                                                          multiplier:1.0
+                                                                            constant:0];
     
+    
+    NSLayoutConstraint * bottonTopConstrain =  [NSLayoutConstraint constraintWithItem:button
+                                                                            attribute:(addToTop)?NSLayoutAttributeTop:NSLayoutAttributeBottom
+                                                                            relatedBy:NSLayoutRelationEqual
+                                                                               toItem:button.superview
+                                                                            attribute:(addToTop)?NSLayoutAttributeTop:NSLayoutAttributeBottom
+                                                                           multiplier:1.0
+                                                                             constant:(addToTop)?20:-20];
+    
+    
+    [appWindow addConstraints:@[centerXConstraint,bottonTopConstrain]];
+    
+    
+    return button;
 }
 
--(void) setupPanel {
+-(void) setupPanel:(NSInteger) panelIndex selector:(SEL) selector {
     
-    self.panelView = [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleLight];
-    if (self.panelView != nil) {
-        [self.view addSubview:self.panelView];
-        self.panelView.delegate = self;
-        [self.panelView.contentView.layer insertSublayer:self.gradient atIndex:0];
+    [self.panelViews addObject: [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark]];
+    if (self.panelViews[panelIndex] != nil) {
+        [self.view addSubview:self.panelViews[panelIndex]];
+        self.panelViews[panelIndex].delegate = self;
+        [self.panelViews[panelIndex].contentView.layer insertSublayer:self.gradient[panelIndex] atIndex:0];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
                                                               attribute:NSLayoutAttributeTop
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -238,7 +278,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
                                                               attribute:NSLayoutAttributeBottom
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -246,7 +286,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
                                                               attribute:NSLayoutAttributeLeading
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -254,7 +294,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelView
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
                                                               attribute:NSLayoutAttributeTrailing
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -265,72 +305,103 @@ alpha:1.0]
         
         CGSize closeButtonSize    = CGSizeMake(24, 12);
         UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
-        self.buttonClose = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.buttonClose setBackgroundImage:backgroundImage forState:UIControlStateNormal];
+        
+        if (panelIndex == TOP) {
+            backgroundImage = [UIImage imageWithCGImage:backgroundImage.CGImage
+                                                  scale:backgroundImage.scale
+                                            orientation:UIImageOrientationDown];
+        }
+        
+        [self.closeButtons addObject:[UIButton buttonWithType:UIButtonTypeCustom]];
+        [self.closeButtons[panelIndex] setBackgroundImage:backgroundImage forState:UIControlStateNormal];
+        
+        
         CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
-        [self.buttonClose setFrame:buttonFrame];
-        [self.buttonClose addTarget:self action:@selector(didCloseTouchUpInside:) forControlEvents:UIControlEventTouchUpInside ];
-        [self.buttonClose setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [self.panelView.contentView addSubview:self.buttonClose];
-//        NSArray * fixedWidthButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"H:[view(==%f)]", self.buttonClose.bounds.size.width]
-//                                                                             options:0
-//                                                                             metrics:nil
-//                                                                               views:NSDictionaryOfVariableBindings(view)];
+        [self.closeButtons[panelIndex] setFrame:buttonFrame];
+        [self.closeButtons[panelIndex] addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside ];
+        [self.closeButtons[panelIndex] setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self.panelViews[panelIndex].contentView addSubview:self.closeButtons[panelIndex]];
         
         
-        [self.buttonClose.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.buttonClose
-                                                         attribute:NSLayoutAttributeHeight
-                                                         relatedBy:NSLayoutRelationEqual
-                                                            toItem:nil
-                                                         attribute:NSLayoutAttributeNotAnAttribute
-                                                        multiplier:1
-                                                          constant:self.buttonClose.bounds.size.height]];
+        [self.closeButtons[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+                                                                                            attribute:NSLayoutAttributeHeight
+                                                                                            relatedBy:NSLayoutRelationEqual
+                                                                                               toItem:nil
+                                                                                            attribute:NSLayoutAttributeNotAnAttribute
+                                                                                           multiplier:1
+                                                                                             constant:self.closeButtons[panelIndex].bounds.size.height]];
         
-        [self.buttonClose.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.buttonClose
-                                                                               attribute:NSLayoutAttributeWidth
-                                                                               relatedBy:NSLayoutRelationEqual
-                                                                                  toItem:nil
-                                                                               attribute:NSLayoutAttributeNotAnAttribute
-                                                                              multiplier:1
-                                                                                constant:self.buttonClose.bounds.size.width]];
-//
-//        NSArray * fixedHeightButton = [NSLayoutConstraint constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[view(==%f)]", self.buttonClose.bounds.size.height]
-//                                                                              options:0
-//                                                                              metrics:nil
-//                                                                                views:NSDictionaryOfVariableBindings(view)];
-
-       // [self.panelView.contentView addConstraints:fixedWidthButton];
-       // [self.panelView.contentView addConstraints:fixedHeightButton];
+        [self.closeButtons[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+                                                                                            attribute:NSLayoutAttributeWidth
+                                                                                            relatedBy:NSLayoutRelationEqual
+                                                                                               toItem:nil
+                                                                                            attribute:NSLayoutAttributeNotAnAttribute
+                                                                                           multiplier:1
+                                                                                             constant:self.closeButtons[panelIndex].bounds.size.width]];
         
         //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
         
-        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:self.buttonClose attribute:NSLayoutAttributeCenterX
+        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+                                                                               attribute:NSLayoutAttributeCenterX
                                                                                relatedBy:NSLayoutRelationEqual
-                                                                                  toItem:self.buttonClose.superview
+                                                                                  toItem:self.closeButtons[panelIndex].superview
                                                                                attribute:NSLayoutAttributeCenterX
                                                                               multiplier:1.0
                                                                                 constant:0];
+        if (panelIndex == TOP) {
+            NSLayoutConstraint * bottomConstrain =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+                                                                                 attribute:NSLayoutAttributeBottom
+                                                                                 relatedBy:NSLayoutRelationEqual
+                                                                                    toItem:self.closeButtons[panelIndex].superview
+                                                                                 attribute:NSLayoutAttributeBottom
+                                                                                multiplier:1.0
+                                                                                  constant:-15];
+            [self.panelViews[panelIndex].contentView  addConstraint:bottomConstrain];
+        } else {
+            
+            NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+                                                                              attribute:NSLayoutAttributeTop
+                                                                              relatedBy:NSLayoutRelationEqual
+                                                                                 toItem:self.closeButtons[panelIndex].superview
+                                                                              attribute:NSLayoutAttributeTop
+                                                                             multiplier:1.0
+                                                                               constant:15];
+            [self.panelViews[panelIndex].contentView  addConstraint:topConstrain];
+        }
         
-        NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.buttonClose
-                                                                          attribute:NSLayoutAttributeTop
-                                                                          relatedBy:NSLayoutRelationEqual
-                                                                             toItem:self.buttonClose.superview
-                                                                          attribute:NSLayoutAttributeTop
-                                                                         multiplier:1.0
-                                                                           constant:15];
         
-        [self.panelView.contentView  addConstraint:centerXConstraint];
-        [self.panelView.contentView  addConstraint:topConstrain];
+        [self.panelViews[panelIndex].contentView  addConstraint:centerXConstraint];
         
-        [self.panelView.contentView layoutSubviews];
+        
+        [self.panelViews[panelIndex].contentView layoutSubviews];
         
     }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self setUpFloatingButton];
-    [self setupPanel];
+    UIImage *image =  nil;
+    
+    [self.floatingButtons addObject:[self addFloatingButton:@selector(didTouchUpInsideTop:) addToTop:YES]];
+    [self.floatingButtons[TOP] layoutIfNeeded];
+    self.gradient[TOP].frame      = self.floatingButtons[TOP].bounds;
+    UIGraphicsBeginImageContext(self.floatingButtons[TOP].bounds.size);
+    [self.gradient[TOP] renderInContext:UIGraphicsGetCurrentContext()];
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.floatingButtons[TOP] setBackgroundImage:image forState:UIControlStateNormal];
+    
+    [self.floatingButtons addObject:[self addFloatingButton:@selector(didTouchUpInsideBottom:) addToTop:NO]];
+    [self.floatingButtons[BOTTOM] layoutIfNeeded];
+    self.gradient[BOTTOM].frame      = self.floatingButtons[BOTTOM].bounds;
+    UIGraphicsBeginImageContext(self.floatingButtons[BOTTOM].bounds.size);
+    [self.gradient[BOTTOM] renderInContext:UIGraphicsGetCurrentContext()];
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [self.floatingButtons[BOTTOM] setBackgroundImage:image forState:UIControlStateNormal];
+    
+    [self setupPanel:TOP selector:@selector(didTouchUpInsideCloseTop:)];
+    [self setupPanel:BOTTOM selector:@selector(didTouchUpInsideCloseBottom:)];
     
 }
 
@@ -344,7 +415,10 @@ alpha:1.0]
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    self.gradient.frame   = self.panelView.bounds;
+    if(self.gradient && self.gradient.count == 2 && self.panelViews && self.panelViews.count == 2){
+        self.gradient[TOP].frame   = self.panelViews[TOP].bounds;
+        self.gradient[BOTTOM].frame   = self.panelViews[BOTTOM].bounds;
+    }
 }
 
 @end

@@ -26,6 +26,7 @@
 @property(assign,nonatomic) CGRect originalPanFrame;
 @property(assign,nonatomic) CGRect lastChangePanFrame;
 @property(strong,nonatomic) UITapGestureRecognizer *tapRecognizer;
+@property(assign,nonatomic) BOOL openFromTop;
 @end
 
 @implementation OMBlurPanel
@@ -60,6 +61,7 @@
     self.style               = style;
     self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.cornerRadii         = CGSizeMake(0, 8);
+    self.openFromTop         =NO;
     self.allowCloseGesture   = YES;
     self.currentRatio        = 0;
     self.originalPanFrame    = CGRectZero;
@@ -90,9 +92,15 @@
 
 -(void) didMoveToSuperview {
     [super didMoveToSuperview];
-    [self setCornerRadius:self.cornerRadii corner:(UIRectCornerTopLeft|UIRectCornerTopRight)];
 }
 
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    [self setCornerRadius:self.cornerRadii
+                   corner:self.openFromTop?(UIRectCornerBottomLeft |UIRectCornerBottomRight):(UIRectCornerTopLeft|UIRectCornerTopRight)];
+}
 
 #pragma mask - UITapGestureRecognizer method
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -132,11 +140,6 @@
 
 #pragma mask - Helpers
 
--(CGRect) rectFromRatio:(CGRect) frame {
-    const CGFloat newHeight = frame.size.height * CLAMP(self.currentRatio, 0.0, 1.0);
-    const CGRect rect = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height - newHeight , frame.size.width, newHeight);
-    return rect;
-}
 
 -(BOOL) viewIsChildViewOfClassView:(UIView*) view  viewClass:(Class) viewClass {
     if ([view isKindOfClass:viewClass]) {
@@ -197,11 +200,11 @@
     //
     // Animate the mask (reverse).
     //
-    
+    [self.sourceView layoutIfNeeded];
     const CGFloat maxRadius    = ((self.superview.frame.size.height - self.superview.frame.origin.y) - _sourceView.bounds.size.height) * ratio;
     const CGFloat minRadius    = self.sourceView.bounds.size.height * 0.5;
-    const CGPoint sourceCenter = CGPointMake(self.sourceView.frame.origin.x+self.sourceView.frame.size.width*0.5,
-                                             self.sourceView.frame.origin.y-self.sourceView.frame.size.height*0.5);
+    const CGPoint sourceCenter = CGPointMake(self.sourceView.frame.origin.x+self.sourceView.bounds.size.width*0.5,
+                                             self.sourceView.frame.origin.y+self.sourceView.bounds.size.height*0.5);
     
     [self.effectView fadeInEffect:self.style withDuration:duration];
     [self animateMaskWithCenter:sourceCenter
@@ -240,6 +243,7 @@
     self.currentRatio         = CLAMP(ratio, 0.0, 1.0);
     self.animationDurationPan = duration;
     self.sourceView           = sourceView;
+    self.openFromTop          = sourceView.frame.origin.y < self.superview.frame.size.height*0.5;
     
     if (_delegate != nil) {
         if([_delegate respondsToSelector:@selector(willOpenPanel:)]) {
@@ -247,20 +251,24 @@
         }
     }
     
-
     self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
     [self layoutIfNeeded];
     
-    BOOL direction = self.frame.origin.y > sourceView.frame.origin.y ;
     
-    
+        [self.sourceView layoutIfNeeded];
     const CGRect superviewFrame = self.superview.frame;
     const CGFloat maxRadius     = superviewFrame.size.height * self.currentRatio;
     const CGFloat minRadius     = sourceView.bounds.size.height * 0.5;
-    const CGPoint sourceCenter  = CGPointMake(sourceView.frame.origin.x+sourceView.frame.size.width*0.5,
-                                              sourceView.frame.origin.y-sourceView.frame.size.height*0.5);
+    const CGPoint sourceCenter  = CGPointMake(sourceView.frame.origin.x+sourceView.bounds.size.width*0.5,
+                                              sourceView.frame.origin.y+sourceView.bounds.size.height*0.5);
+    if (self.openFromTop) {
+        const CGFloat newHeight =  superviewFrame.origin.y + superviewFrame.size.height * self.currentRatio;
+        self.frame  = CGRectMake(superviewFrame.origin.x, superviewFrame.origin.y , superviewFrame.size.width, newHeight);
+    } else {
+        const CGFloat newHeight = superviewFrame.size.height * self.currentRatio;
+        self.frame  = CGRectMake(superviewFrame.origin.x, superviewFrame.origin.y + superviewFrame.size.height - newHeight , superviewFrame.size.width, newHeight);;
+    }
     
-    self.frame  = [self rectFromRatio:superviewFrame];
     [self.effectView fadeInEffect:self.style withDuration:duration];
     [self animateMaskWithCenter: sourceCenter
                       maxRadius:maxRadius
@@ -294,20 +302,38 @@
         }
         case  UIGestureRecognizerStateChanged: {
             const CGFloat newOriginY = _originalPanFrame.origin.y+translatedPoint.y;
-                if (newOriginY > 0 && translatedVelocity.y > 0) {
-                    _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
-                                                     newOriginY ,
-                                                     _originalPanFrame.size.width,
-                                                     _originalPanFrame.size.height);
-                    self.effectView.frame = _lastChangePanFrame;
-                    [UIView animateWithDuration:0.1
-                                          delay:0.0
-                         usingSpringWithDamping:0.53
-                          initialSpringVelocity:1.0
-                                        options:UIViewAnimationOptionCurveEaseInOut
-                                     animations:^{
-                                         [self.effectView layoutIfNeeded];
-                                     } completion:nil];
+            CGFloat intensity = 1.0 - (1.0/_originalPanFrame.size.height) * fabs(newOriginY);
+            [self.effectView setEffectWithIntensity:self.effectView.effect
+                                          intensity:intensity
+                                           duration:0.1];
+            if (newOriginY > 0 && translatedVelocity.y > 0 && !self.openFromTop) {
+                _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
+                                                 newOriginY ,
+                                                 _originalPanFrame.size.width,
+                                                 _originalPanFrame.size.height);
+                self.effectView.frame = _lastChangePanFrame;
+                [UIView animateWithDuration:0.1
+                                      delay:0.0
+                     usingSpringWithDamping:0.53
+                      initialSpringVelocity:1.0
+                                    options:UIViewAnimationOptionCurveEaseInOut
+                                 animations:^{
+                                     [self.effectView layoutIfNeeded];
+                                 } completion:nil];
+            } else {
+                _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
+                                                 _originalPanFrame.origin.y,
+                                                 _originalPanFrame.size.width,
+                                                 _originalPanFrame.size.height + newOriginY);
+                self.effectView.frame = _lastChangePanFrame;
+                [UIView animateWithDuration:0.1
+                                      delay:0.0
+                     usingSpringWithDamping:0.53
+                      initialSpringVelocity:1.0
+                                    options:UIViewAnimationOptionCurveEaseInOut
+                                 animations:^{
+                                     [self.effectView layoutIfNeeded];
+                                 } completion:nil];
             }
             break;
         }
@@ -315,12 +341,25 @@
         case  UIGestureRecognizerStateCancelled:
         case  UIGestureRecognizerStateFailed:
         {
-            const CGFloat panOffset = (_lastChangePanFrame.origin.y - _originalPanFrame.origin.y);
-            if (panOffset > 0 && translatedVelocity.y > 0) {
-                CGRect targetFrame = CGRectMake(_originalPanFrame.origin.x,
-                                                _lastChangePanFrame.origin.y,
-                                                _originalPanFrame.size.width,
-                                                _originalPanFrame.size.height);
+            CGRect targetFrame = CGRectZero;
+            CGFloat panOffset = 0;
+            if (!self.openFromTop) {
+                panOffset = (_lastChangePanFrame.origin.y - _originalPanFrame.origin.y);
+                targetFrame = CGRectMake(_originalPanFrame.origin.x,
+                                         _lastChangePanFrame.origin.y,
+                                         _originalPanFrame.size.width,
+                                         _originalPanFrame.size.height);
+            }
+            else
+            {
+                panOffset = (_originalPanFrame.size.height  - _lastChangePanFrame.size.height);
+                targetFrame = CGRectMake(_originalPanFrame.origin.x,
+                                         _originalPanFrame.origin.y,
+                                         _originalPanFrame.size.width,
+                                         _lastChangePanFrame.size.height);
+            }
+            
+            if (panOffset > 0){
                 self.effectView.frame = targetFrame;
                 [UIView animateWithDuration:0.1
                                       delay:0.0
@@ -353,17 +392,8 @@
                                          [self.effectView layoutIfNeeded];
                                      } completion:nil];
                 }
-            } else {
-                self.effectView.frame = _originalPanFrame;
-                [UIView animateWithDuration:0.3
-                                      delay:0.2
-                     usingSpringWithDamping:1.0
-                      initialSpringVelocity:1.0
-                                    options:UIViewAnimationOptionCurveEaseInOut
-                                 animations:^{
-                                     [self.effectView layoutIfNeeded];
-                                 } completion:nil];
             }
+            
             _lastChangePanFrame = CGRectZero;
             _originalPanFrame   = CGRectZero;
         }

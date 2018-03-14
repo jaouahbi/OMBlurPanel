@@ -77,7 +77,7 @@
     //
     
     CAShapeLayer *maskLayer       = [CAShapeLayer layer];
-    maskLayer.frame               = self.superview.bounds;
+    maskLayer.frame               = self.bounds;
     maskLayer.path                = maskPath.CGPath;
     self.layer.mask               = maskLayer;
     
