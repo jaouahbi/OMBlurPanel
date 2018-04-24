@@ -207,6 +207,7 @@
                                              self.sourceView.frame.origin.y+self.sourceView.bounds.size.height*0.5);
     
     [self.effectView fadeInEffect:self.style withDuration:duration];
+     const CGPoint sourceCenter2 = [self.sourceView.superview convertPoint:sourceCenter toView:self];
     [self animateMaskWithCenter:sourceCenter
                       maxRadius:maxRadius
                       minRadius:minRadius
@@ -255,7 +256,7 @@
     [self layoutIfNeeded];
     
     
-        [self.sourceView layoutIfNeeded];
+    [self.sourceView layoutIfNeeded];
     const CGRect superviewFrame = self.superview.frame;
     const CGFloat maxRadius     = superviewFrame.size.height * self.currentRatio;
     const CGFloat minRadius     = sourceView.bounds.size.height * 0.5;
@@ -305,36 +306,31 @@
             CGFloat intensity = 1.0 - (1.0/_originalPanFrame.size.height) * fabs(newOriginY);
             [self.effectView setEffectWithIntensity:self.effectView.effect
                                           intensity:intensity
-                                           duration:0.1];
+                                           duration:1.0];
             if (newOriginY > 0 && translatedVelocity.y > 0 && !self.openFromTop) {
                 _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
                                                  newOriginY ,
                                                  _originalPanFrame.size.width,
                                                  _originalPanFrame.size.height);
-                self.effectView.frame = _lastChangePanFrame;
-                [UIView animateWithDuration:0.1
-                                      delay:0.0
-                     usingSpringWithDamping:0.53
-                      initialSpringVelocity:1.0
-                                    options:UIViewAnimationOptionCurveEaseInOut
-                                 animations:^{
-                                     [self.effectView layoutIfNeeded];
-                                 } completion:nil];
+
             } else {
                 _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
                                                  _originalPanFrame.origin.y,
                                                  _originalPanFrame.size.width,
                                                  _originalPanFrame.size.height + newOriginY);
-                self.effectView.frame = _lastChangePanFrame;
-                [UIView animateWithDuration:0.1
-                                      delay:0.0
-                     usingSpringWithDamping:0.53
-                      initialSpringVelocity:1.0
-                                    options:UIViewAnimationOptionCurveEaseInOut
-                                 animations:^{
-                                     [self.effectView layoutIfNeeded];
-                                 } completion:nil];
             }
+            
+            self.effectView.frame = _lastChangePanFrame;
+            [UIView animateWithDuration:0.5f
+                                  delay:0
+                 usingSpringWithDamping:0.4f
+                  initialSpringVelocity:0.5
+                                options:0
+                             animations:^{
+                                 [self.effectView layoutIfNeeded];
+                             } completion:nil];
+            
+            
             break;
         }
         case  UIGestureRecognizerStateEnded:
@@ -361,11 +357,19 @@
             
             if (panOffset > 0){
                 self.effectView.frame = targetFrame;
-                [UIView animateWithDuration:0.1
-                                      delay:0.0
-                     usingSpringWithDamping:0.53
-                      initialSpringVelocity:1.0
-                                    options:UIViewAnimationOptionCurveEaseInOut
+//                [UIView animateWithDuration:0.5f
+//                                      delay:0
+//                     usingSpringWithDamping:0.25f
+//                      initialSpringVelocity:0.5
+//                                    options:0
+//                                 animations:^{
+//                                     [self.effectView layoutIfNeeded];
+//                                 } completion:nil];
+                [UIView animateWithDuration:0.7
+                                      delay:0
+                     usingSpringWithDamping:0.6f
+                      initialSpringVelocity:0
+                                    options:UIViewAnimationOptionCurveLinear
                                  animations:^{
                                      [self.effectView layoutIfNeeded];
                                  } completion:nil];
@@ -383,10 +387,10 @@
                     }];
                 } else {
                     self.effectView.frame = _originalPanFrame;
-                    [UIView animateWithDuration:0.3
-                                          delay:0.2
-                         usingSpringWithDamping:1.0
-                          initialSpringVelocity:1.0
+                    [UIView animateWithDuration:0.5
+                                          delay:0
+                         usingSpringWithDamping:0.25
+                          initialSpringVelocity:0
                                         options:UIViewAnimationOptionCurveEaseInOut
                                      animations:^{
                                          [self.effectView layoutIfNeeded];

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C9CB215D205F0C6400395164 /* OMGripBarView.m in Sources */ = {isa = PBXBuildFile; fileRef = C9CB215C205F0C6400395164 /* OMGripBarView.m */; };
 		E95E0765203B1B6800BD8369 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E95E0756203B1B6800BD8369 /* Assets.xcassets */; };
 		E95E0767203B1B6800BD8369 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0758203B1B6800BD8369 /* ViewController.m */; };
 		E95E0768203B1B6800BD8369 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E95E0759203B1B6800BD8369 /* LaunchScreen.storyboard */; };
@@ -23,6 +24,8 @@
 
 /* Begin PBXFileReference section */
 		C97DDD922038D7DE003039AE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9CB215B205F0C6400395164 /* OMGripBarView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OMGripBarView.h; sourceTree = "<group>"; };
+		C9CB215C205F0C6400395164 /* OMGripBarView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OMGripBarView.m; sourceTree = "<group>"; };
 		E95E0754203B1B6800BD8369 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E95E0756203B1B6800BD8369 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E95E0758203B1B6800BD8369 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
@@ -91,6 +94,8 @@
 				E95E0762203B1B6800BD8369 /* ViewController.h */,
 				E95E0758203B1B6800BD8369 /* ViewController.m */,
 				E95E075E203B1B6800BD8369 /* main.m */,
+				C9CB215B205F0C6400395164 /* OMGripBarView.h */,
+				C9CB215C205F0C6400395164 /* OMGripBarView.m */,
 			);
 			path = Example;
 			sourceTree = "<group>";
@@ -228,6 +233,7 @@
 				E95E076A203B1B6800BD8369 /* main.m in Sources */,
 				E9A61FF5204426A300CCD8CB /* UIVisualEffectView+Intensity.m in Sources */,
 				E95E0771203B1BB500BD8369 /* OMBlurPanel.m in Sources */,
+				C9CB215D205F0C6400395164 /* OMGripBarView.m in Sources */,
 				E9A61FEB20441FF700CCD8CB /* UIView+CornerRounded.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

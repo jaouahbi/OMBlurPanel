@@ -10,7 +10,7 @@
 #import "ViewController.h"
 #include "OMBlurPanel.h"
 #include "UIView+AnimationCircleWithMask.h"
-
+#include "OMGripBarView.h"
 
 #define TOP 0
 #define BOTTOM 1
@@ -25,7 +25,7 @@ alpha:1.0]
 
 @property(strong,nonatomic) UIWebView * webView;
 @property(strong,nonatomic) NSMutableArray<UIButton *> * floatingButtons;
-@property(strong,nonatomic) NSMutableArray<UIButton *>  * closeButtons;
+@property(strong,nonatomic) NSMutableArray<OMGripBarView *>  * gripBars;
 @property(strong,nonatomic) NSMutableArray<OMBlurPanel *> * panelViews;
 @property(strong,nonatomic) NSMutableArray<CAGradientLayer *> *gradient;
 
@@ -84,7 +84,7 @@ alpha:1.0]
     
     
     self.floatingButtons= [NSMutableArray array];;
-    self.closeButtons= [NSMutableArray array];;
+    self.gripBars= [NSMutableArray array];;
     self.panelViews= [NSMutableArray array];;
     
     
@@ -303,66 +303,87 @@ alpha:1.0]
                                                                constant:0]];
         
         
-        CGSize closeButtonSize    = CGSizeMake(24, 12);
-        UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
+//        CGSize closeButtonSize    = CGSizeMake(24, 12);
+//        UIImage * backgroundImage = [UIImage imageNamed:@"closeButton"];
+//
+//        if (panelIndex == TOP) {
+//            backgroundImage = [UIImage imageWithCGImage:backgroundImage.CGImage
+//                                                  scale:backgroundImage.scale
+//                                            orientation:UIImageOrientationDown];
+//        }
         
-        if (panelIndex == TOP) {
-            backgroundImage = [UIImage imageWithCGImage:backgroundImage.CGImage
-                                                  scale:backgroundImage.scale
-                                            orientation:UIImageOrientationDown];
-        }
+        [self.gripBars addObject:[[OMGripBarView alloc] initWithFrame:CGRectZero]];
+        self.gripBars[panelIndex].tintColor = [UIColor blackColor];
         
-        [self.closeButtons addObject:[UIButton buttonWithType:UIButtonTypeCustom]];
-        [self.closeButtons[panelIndex] setBackgroundImage:backgroundImage forState:UIControlStateNormal];
-        
-        
-        CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
-        [self.closeButtons[panelIndex] setFrame:buttonFrame];
-        [self.closeButtons[panelIndex] addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside ];
-        [self.closeButtons[panelIndex] setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [self.panelViews[panelIndex].contentView addSubview:self.closeButtons[panelIndex]];
+       // [self.closeButtons[panelIndex] setBackgroundImage:backgroundImage forState:UIControlStateNormal];
         
         
-        [self.closeButtons[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+        //CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
+       // [self.gripBars[panelIndex] setFrame:buttonFrame];
+       // [self.closeButtons[panelIndex] addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside ];
+        [self.gripBars[panelIndex] setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self.panelViews[panelIndex].contentView addSubview:self.gripBars[panelIndex]];
+        
+        
+        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
                                                                                             attribute:NSLayoutAttributeHeight
                                                                                             relatedBy:NSLayoutRelationEqual
                                                                                                toItem:nil
                                                                                             attribute:NSLayoutAttributeNotAnAttribute
                                                                                            multiplier:1
-                                                                                             constant:self.closeButtons[panelIndex].bounds.size.height]];
+                                                                                             constant:25]];
         
-        [self.closeButtons[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
-                                                                                            attribute:NSLayoutAttributeWidth
-                                                                                            relatedBy:NSLayoutRelationEqual
-                                                                                               toItem:nil
-                                                                                            attribute:NSLayoutAttributeNotAnAttribute
-                                                                                           multiplier:1
-                                                                                             constant:self.closeButtons[panelIndex].bounds.size.width]];
+
+        
+        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+                                                              attribute:NSLayoutAttributeLeading
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.gripBars[panelIndex].superview
+                                                              attribute:NSLayoutAttributeLeading
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+                                                              attribute:NSLayoutAttributeTrailing
+                                                              relatedBy:NSLayoutRelationEqual
+                                                                 toItem:self.gripBars[panelIndex].superview
+                                                              attribute:NSLayoutAttributeTrailing
+                                                             multiplier:1
+                                                               constant:0]];
+        
+        
+//        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+//                                                                                            attribute:NSLayoutAttributeWidth
+//                                                                                            relatedBy:NSLayoutRelationEqual
+//                                                                                               toItem:nil
+//                                                                                            attribute:NSLayoutAttributeNotAnAttribute
+//                                                                                           multiplier:1
+//                                                                                             constant:self.gripBars[panelIndex].bounds.size.width]];
         
         //DBG_BORDER_COLOR(_buttonAURAClose.layer, [UIColor redColor]);
         
-        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
-                                                                               attribute:NSLayoutAttributeCenterX
-                                                                               relatedBy:NSLayoutRelationEqual
-                                                                                  toItem:self.closeButtons[panelIndex].superview
-                                                                               attribute:NSLayoutAttributeCenterX
-                                                                              multiplier:1.0
-                                                                                constant:0];
+//        NSLayoutConstraint * centerXConstraint =  [NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+//                                                                               attribute:NSLayoutAttributeCenterX
+//                                                                               relatedBy:NSLayoutRelationEqual
+//                                                                                  toItem:self.gripBars[panelIndex].superview
+//                                                                               attribute:NSLayoutAttributeCenterX
+//                                                                              multiplier:1.0
+//                                                                                constant:0];
         if (panelIndex == TOP) {
-            NSLayoutConstraint * bottomConstrain =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+            NSLayoutConstraint * bottomConstrain =  [NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
                                                                                  attribute:NSLayoutAttributeBottom
                                                                                  relatedBy:NSLayoutRelationEqual
-                                                                                    toItem:self.closeButtons[panelIndex].superview
+                                                                                    toItem:self.gripBars[panelIndex].superview
                                                                                  attribute:NSLayoutAttributeBottom
                                                                                 multiplier:1.0
                                                                                   constant:-15];
             [self.panelViews[panelIndex].contentView  addConstraint:bottomConstrain];
         } else {
             
-            NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.closeButtons[panelIndex]
+            NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
                                                                               attribute:NSLayoutAttributeTop
                                                                               relatedBy:NSLayoutRelationEqual
-                                                                                 toItem:self.closeButtons[panelIndex].superview
+                                                                                 toItem:self.gripBars[panelIndex].superview
                                                                               attribute:NSLayoutAttributeTop
                                                                              multiplier:1.0
                                                                                constant:15];
@@ -370,7 +391,7 @@ alpha:1.0]
         }
         
         
-        [self.panelViews[panelIndex].contentView  addConstraint:centerXConstraint];
+      //  [self.panelViews[panelIndex].contentView  addConstraint:centerXConstraint];
         
         
         [self.panelViews[panelIndex].contentView layoutSubviews];
@@ -404,7 +425,6 @@ alpha:1.0]
     [self setupPanel:BOTTOM selector:@selector(didTouchUpInsideCloseBottom:)];
     
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
