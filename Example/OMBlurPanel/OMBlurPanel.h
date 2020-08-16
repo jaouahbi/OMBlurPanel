@@ -65,6 +65,7 @@
  */
 -(BOOL) isOpen;
 
+
 #pragma mark - Properties
 
 @property(strong,nonatomic) UIVisualEffectView* effectView;

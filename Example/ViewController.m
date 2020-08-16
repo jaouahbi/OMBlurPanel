@@ -33,6 +33,7 @@ alpha:1.0]
 @end
 @implementation ViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSString *urlAddress = @"http://www.apple.com";
@@ -88,28 +89,7 @@ alpha:1.0]
     self.panelViews= [NSMutableArray array];;
     
     
-    UIColor * color1 = COLOR_FROM_RGB(0x20002c);
-    UIColor * color2 = COLOR_FROM_RGB(0xcbb4d4);
-    NSArray *colors = @[(id)color1.CGColor,(id)color2.CGColor];
-    
-    
-    
-    [self.gradient addObject:[CAGradientLayer layer]];
-    [self.gradient addObject:[CAGradientLayer layer]];
-    self.gradient[TOP].startPoint = CGPointMake(1, 0);
-    self.gradient[TOP].endPoint   = CGPointMake(0, 1);
-    self.gradient[TOP].colors = colors;;
-    
-    
-    
-    UIColor * color21 = COLOR_FROM_RGB(0x1a2a6c);
-    UIColor * color22 = COLOR_FROM_RGB(0xb21f1f);
-    UIColor * color23 = COLOR_FROM_RGB(0xfdbb2d);
-    NSArray *colors2 = @[(id)color21.CGColor,(id)color22.CGColor,(id)color23.CGColor];
-    
-    self.gradient[BOTTOM].startPoint = CGPointMake(1, 0);
-    self.gradient[BOTTOM].endPoint   = CGPointMake(0, 1);
-    self.gradient[BOTTOM].colors = colors2;
+    [self setupGradients];
     
 }
 -(void)didlClosePanelWithGesture:(OMBlurPanel *)panel {
@@ -147,13 +127,13 @@ alpha:1.0]
 
 -(void) didTouchUpInsideTop:(id)sender {
     if (![self.panelViews[TOP] isOpen]) {
-        [self.panelViews[TOP] openPanel:self.floatingButtons[TOP] duration:2.0 ratio:0.5 block:nil];
+        [self.panelViews[TOP] openPanel:self.floatingButtons[TOP] duration:2.0 ratio:0.10 block:nil];
     }
 }
 
 -(void) didTouchUpInsideBottom:(id)sender {
     if (![self.panelViews[BOTTOM] isOpen]) {
-        [self.panelViews[BOTTOM] openPanel:self.floatingButtons[BOTTOM] duration:2.0 ratio:0.5 block:nil];
+        [self.panelViews[BOTTOM] openPanel:self.floatingButtons[BOTTOM] duration:2.0 ratio:0.90 block:nil];
     }
 }
 
@@ -173,22 +153,19 @@ alpha:1.0]
     }
 }
 
-- (void)animateFloatingButtonButton:(BOOL)willAnimate{
-    if (willAnimate) {
-        [self.floatingButtons[0] setEnabled:NO];
-        
-        CASpringAnimation* springRotation = [CASpringAnimation animationWithKeyPath:@"transform.rotation.z"];
-        springRotation.toValue = [NSNumber numberWithFloat: M_PI * 2.0 /* full rotation*/];
-        springRotation.duration = 2.0f;
-        springRotation.cumulative = YES;
-        springRotation.repeatCount = INT_MAX;
-        springRotation.damping = 8;
-        [self.floatingButtons[0].layer addAnimation:springRotation forKey:@"rotationAnimation"];
-    }else{
-        [self.floatingButtons[0] setEnabled:YES];
-        [self.floatingButtons[0].layer removeAllAnimations];
-    }
-}
+
+//
+//- (void)animateFloatingButtonButton:(BOOL)willAnimate buttonIndex:(int)buttonIndex {
+//    if (willAnimate) {
+//        [self.floatingButtons[buttonIndex] setEnabled:NO];
+//
+//        CASpringAnimation * springRotation = [_panelViews[buttonIndex] animateTransformRotation];
+//        [self.floatingButtons[buttonIndex].layer addAnimation:springRotation forKey:@"rotationAnimation"];
+//    }else{
+//        [self.floatingButtons[buttonIndex] setEnabled:YES];
+//        [self.floatingButtons[buttonIndex].layer removeAllAnimations];
+//    }
+//}
 
 
 -(UIButton*) addFloatingButton:(SEL) selector addToTop:(BOOL) addToTop{
@@ -253,7 +230,7 @@ alpha:1.0]
                                                                                toItem:button.superview
                                                                             attribute:(addToTop)?NSLayoutAttributeTop:NSLayoutAttributeBottom
                                                                            multiplier:1.0
-                                                                             constant:(addToTop)?20:-20];
+                                                                             constant:(addToTop)?40:-20];
     
     
     [appWindow addConstraints:@[centerXConstraint,bottonTopConstrain]];
@@ -263,14 +240,15 @@ alpha:1.0]
 }
 
 -(void) setupPanel:(NSInteger) panelIndex selector:(SEL) selector {
-    
-    [self.panelViews addObject: [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark]];
-    if (self.panelViews[panelIndex] != nil) {
-        [self.view addSubview:self.panelViews[panelIndex]];
-        self.panelViews[panelIndex].delegate = self;
-        [self.panelViews[panelIndex].contentView.layer insertSublayer:self.gradient[panelIndex] atIndex:0];
+    OMBlurPanel* panel =  [[OMBlurPanel alloc] initWithFrame:CGRectZero style:UIBlurEffectStyleDark];
+
+    if (panel != nil) {
+        [self.panelViews insertObject:panel atIndex: panelIndex];
+        [self.view addSubview:panel];
+        panel.delegate = self;
+        [panel.contentView.layer insertSublayer:self.gradient[panelIndex] atIndex:0];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:panel
                                                               attribute:NSLayoutAttributeTop
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -278,7 +256,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:panel
                                                               attribute:NSLayoutAttributeBottom
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -286,7 +264,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:panel
                                                               attribute:NSLayoutAttributeLeading
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -294,7 +272,7 @@ alpha:1.0]
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.panelViews[panelIndex]
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:panel
                                                               attribute:NSLayoutAttributeTrailing
                                                               relatedBy:NSLayoutRelationEqual
                                                                  toItem:self.view
@@ -311,9 +289,9 @@ alpha:1.0]
 //                                                  scale:backgroundImage.scale
 //                                            orientation:UIImageOrientationDown];
 //        }
-        
-        [self.gripBars addObject:[[OMGripBarView alloc] initWithFrame:CGRectZero]];
-        self.gripBars[panelIndex].tintColor = [UIColor blackColor];
+        OMGripBarView* gripBar = [[OMGripBarView alloc] initWithFrame:CGRectZero];
+        [self.gripBars insertObject:gripBar atIndex: panelIndex];
+        gripBar.tintColor = [UIColor blackColor];
         
        // [self.closeButtons[panelIndex] setBackgroundImage:backgroundImage forState:UIControlStateNormal];
         
@@ -321,11 +299,11 @@ alpha:1.0]
         //CGRect buttonFrame = CGRectMake(0, 0, closeButtonSize.width, closeButtonSize.height);
        // [self.gripBars[panelIndex] setFrame:buttonFrame];
        // [self.closeButtons[panelIndex] addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside ];
-        [self.gripBars[panelIndex] setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [self.panelViews[panelIndex].contentView addSubview:self.gripBars[panelIndex]];
+        [gripBar setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [panel.contentView addSubview:self.gripBars[panelIndex]];
         
         
-        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+        [gripBar.superview addConstraint:[NSLayoutConstraint constraintWithItem:gripBar
                                                                                             attribute:NSLayoutAttributeHeight
                                                                                             relatedBy:NSLayoutRelationEqual
                                                                                                toItem:nil
@@ -335,18 +313,18 @@ alpha:1.0]
         
 
         
-        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+        [gripBar.superview addConstraint:[NSLayoutConstraint constraintWithItem:gripBar
                                                               attribute:NSLayoutAttributeLeading
                                                               relatedBy:NSLayoutRelationEqual
-                                                                 toItem:self.gripBars[panelIndex].superview
+                                                                 toItem:gripBar.superview
                                                               attribute:NSLayoutAttributeLeading
                                                              multiplier:1
                                                                constant:0]];
         
-        [self.gripBars[panelIndex].superview addConstraint:[NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+        [gripBar.superview addConstraint:[NSLayoutConstraint constraintWithItem:gripBar
                                                               attribute:NSLayoutAttributeTrailing
                                                               relatedBy:NSLayoutRelationEqual
-                                                                 toItem:self.gripBars[panelIndex].superview
+                                                                 toItem:gripBar.superview
                                                               attribute:NSLayoutAttributeTrailing
                                                              multiplier:1
                                                                constant:0]];
@@ -370,65 +348,94 @@ alpha:1.0]
 //                                                                              multiplier:1.0
 //                                                                                constant:0];
         if (panelIndex == TOP) {
-            NSLayoutConstraint * bottomConstrain =  [NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+            NSLayoutConstraint * bottomConstrain =  [NSLayoutConstraint constraintWithItem:gripBar
                                                                                  attribute:NSLayoutAttributeBottom
                                                                                  relatedBy:NSLayoutRelationEqual
-                                                                                    toItem:self.gripBars[panelIndex].superview
+                                                                                    toItem:gripBar.superview
                                                                                  attribute:NSLayoutAttributeBottom
                                                                                 multiplier:1.0
                                                                                   constant:-15];
-            [self.panelViews[panelIndex].contentView  addConstraint:bottomConstrain];
+            [panel.contentView  addConstraint:bottomConstrain];
         } else {
             
-            NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:self.gripBars[panelIndex]
+            NSLayoutConstraint * topConstrain =  [NSLayoutConstraint constraintWithItem:gripBar
                                                                               attribute:NSLayoutAttributeTop
                                                                               relatedBy:NSLayoutRelationEqual
-                                                                                 toItem:self.gripBars[panelIndex].superview
+                                                                                 toItem:gripBar.superview
                                                                               attribute:NSLayoutAttributeTop
                                                                              multiplier:1.0
                                                                                constant:15];
-            [self.panelViews[panelIndex].contentView  addConstraint:topConstrain];
+            [panel.contentView  addConstraint:topConstrain];
         }
         
         
       //  [self.panelViews[panelIndex].contentView  addConstraint:centerXConstraint];
         
         
-        [self.panelViews[panelIndex].contentView layoutSubviews];
+        [panel.contentView layoutSubviews];
         
     }
+}
+
+- (void) setupGradients {
+    
+    
+    [self.gradient insertObject:[CAGradientLayer layer] atIndex:TOP];
+
+    
+    self.gradient[TOP].startPoint = CGPointMake(1, 0);
+    self.gradient[TOP].endPoint   = CGPointMake(0, 1);
+    
+    UIColor * color1 = UIColor.cyanColor;
+    UIColor * color2 = UIColor.lightGrayColor;
+    NSArray *colors = @[(id)color1.CGColor,(id)color2.CGColor];
+    
+    self.gradient[TOP].colors = colors;
+    
+    [self.gradient insertObject:[CAGradientLayer layer] atIndex:BOTTOM];
+    
+    self.gradient[BOTTOM].startPoint = CGPointMake(1, 0);
+    self.gradient[BOTTOM].endPoint   = CGPointMake(0, 1);
+    
+    UIColor * color21 = UIColor.purpleColor;
+    UIColor * color22 = UIColor.grayColor;
+    UIColor * color23 = UIColor.blackColor;
+    
+    NSArray *colors2 = @[(id)color21.CGColor,(id)color22.CGColor,(id)color23.CGColor];
+    
+    self.gradient[BOTTOM].colors = colors2;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     UIImage *image =  nil;
     
-    [self.floatingButtons addObject:[self addFloatingButton:@selector(didTouchUpInsideTop:) addToTop:YES]];
-    [self.floatingButtons[TOP] layoutIfNeeded];
-    self.gradient[TOP].frame      = self.floatingButtons[TOP].bounds;
-    UIGraphicsBeginImageContext(self.floatingButtons[TOP].bounds.size);
+    UIButton * floatingButtonTop = [self addFloatingButton:@selector(didTouchUpInsideTop:) addToTop:YES];
+    UIButton * floatingButtonBottom = [self addFloatingButton:@selector(didTouchUpInsideBottom:) addToTop:NO];
+    
+    [self.floatingButtons insertObject: floatingButtonTop atIndex: TOP];
+    [floatingButtonTop layoutIfNeeded];
+    
+    self.gradient[TOP].frame = floatingButtonTop.bounds;
+    UIGraphicsBeginImageContext(floatingButtonTop.bounds.size);
     [self.gradient[TOP] renderInContext:UIGraphicsGetCurrentContext()];
     image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    [self.floatingButtons[TOP] setBackgroundImage:image forState:UIControlStateNormal];
+    [floatingButtonTop setBackgroundImage:image forState:UIControlStateNormal];
     
-    [self.floatingButtons addObject:[self addFloatingButton:@selector(didTouchUpInsideBottom:) addToTop:NO]];
-    [self.floatingButtons[BOTTOM] layoutIfNeeded];
-    self.gradient[BOTTOM].frame      = self.floatingButtons[BOTTOM].bounds;
-    UIGraphicsBeginImageContext(self.floatingButtons[BOTTOM].bounds.size);
-    [self.gradient[BOTTOM] renderInContext:UIGraphicsGetCurrentContext()];
+    [self.floatingButtons insertObject: floatingButtonBottom atIndex: BOTTOM];
+    [floatingButtonBottom layoutIfNeeded];
+    
+    self.gradient[BOTTOM].frame  = floatingButtonBottom.bounds;
+    UIGraphicsBeginImageContext(floatingButtonBottom.bounds.size);
+    [self.gradient[BOTTOM] renderInContext: UIGraphicsGetCurrentContext()];
     image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    [self.floatingButtons[BOTTOM] setBackgroundImage:image forState:UIControlStateNormal];
+    [floatingButtonBottom setBackgroundImage:image forState:UIControlStateNormal];
     
     [self setupPanel:TOP selector:@selector(didTouchUpInsideCloseTop:)];
     [self setupPanel:BOTTOM selector:@selector(didTouchUpInsideCloseBottom:)];
     
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 

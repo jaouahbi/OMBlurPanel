@@ -17,7 +17,6 @@
 		E95E0771203B1BB500BD8369 /* OMBlurPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E076F203B1BB500BD8369 /* OMBlurPanel.m */; };
 		E95E0775203B1BD100BD8369 /* UIView+Blur.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E0774203B1BD100BD8369 /* UIView+Blur.m */; };
 		E95E077D203B220400BD8369 /* UIView+AnimationCircleWithMask.m in Sources */ = {isa = PBXBuildFile; fileRef = E95E077B203B220400BD8369 /* UIView+AnimationCircleWithMask.m */; };
-		E9A065A82050552F0045272A /* UIView+safeAreaInsets.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A065A62050552F0045272A /* UIView+safeAreaInsets.m */; };
 		E9A61FEB20441FF700CCD8CB /* UIView+CornerRounded.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A61FEA20441FF700CCD8CB /* UIView+CornerRounded.m */; };
 		E9A61FF5204426A300CCD8CB /* UIVisualEffectView+Intensity.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A61FF4204426A200CCD8CB /* UIVisualEffectView+Intensity.m */; };
 /* End PBXBuildFile section */
@@ -41,8 +40,6 @@
 		E95E0774203B1BD100BD8369 /* UIView+Blur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Blur.m"; sourceTree = "<group>"; };
 		E95E077B203B220400BD8369 /* UIView+AnimationCircleWithMask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+AnimationCircleWithMask.m"; sourceTree = "<group>"; };
 		E95E077C203B220400BD8369 /* UIView+AnimationCircleWithMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AnimationCircleWithMask.h"; sourceTree = "<group>"; };
-		E9A065A62050552F0045272A /* UIView+safeAreaInsets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+safeAreaInsets.m"; sourceTree = "<group>"; };
-		E9A065A72050552F0045272A /* UIView+safeAreaInsets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+safeAreaInsets.h"; sourceTree = "<group>"; };
 		E9A61FE920441FF700CCD8CB /* UIView+CornerRounded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CornerRounded.h"; sourceTree = "<group>"; };
 		E9A61FEA20441FF700CCD8CB /* UIView+CornerRounded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CornerRounded.m"; sourceTree = "<group>"; };
 		E9A61FF3204426A200CCD8CB /* UIVisualEffectView+Intensity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIVisualEffectView+Intensity.h"; sourceTree = "<group>"; };
@@ -79,7 +76,6 @@
 		E95E0752203B1B6800BD8369 /* Example */ = {
 			isa = PBXGroup;
 			children = (
-				E9A065A52050552F0045272A /* UIView+safeAreaInsets */,
 				E9A61FF2204426A200CCD8CB /* UIVisualEffectView+Intensity */,
 				E9A61FE820441FF700CCD8CB /* UIView+CornerRounded */,
 				E95E077A203B220400BD8369 /* UIView+AnimationCircleWithMask */,
@@ -127,15 +123,6 @@
 			path = "UIView+AnimationCircleWithMask";
 			sourceTree = "<group>";
 		};
-		E9A065A52050552F0045272A /* UIView+safeAreaInsets */ = {
-			isa = PBXGroup;
-			children = (
-				E9A065A62050552F0045272A /* UIView+safeAreaInsets.m */,
-				E9A065A72050552F0045272A /* UIView+safeAreaInsets.h */,
-			);
-			path = "UIView+safeAreaInsets";
-			sourceTree = "<group>";
-		};
 		E9A61FE820441FF700CCD8CB /* UIView+CornerRounded */ = {
 			isa = PBXGroup;
 			children = (
@@ -180,7 +167,7 @@
 		C97DDD8A2038D7DE003039AE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = io;
 				TargetAttributes = {
 					C97DDD912038D7DE003039AE = {
@@ -226,7 +213,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E95E0767203B1B6800BD8369 /* ViewController.m in Sources */,
-				E9A065A82050552F0045272A /* UIView+safeAreaInsets.m in Sources */,
 				E95E076C203B1B6800BD8369 /* AppDelegate.m in Sources */,
 				E95E077D203B220400BD8369 /* UIView+AnimationCircleWithMask.m in Sources */,
 				E95E0775203B1BD100BD8369 /* UIView+Blur.m in Sources */,
@@ -274,6 +260,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -281,6 +268,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -329,6 +317,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -336,6 +325,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -369,7 +359,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = VBTKBHNWT3;
+				DEVELOPMENT_TEAM = 9LCWBZHZFL;
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.io.blur;
@@ -383,7 +373,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = VBTKBHNWT3;
+				DEVELOPMENT_TEAM = 9LCWBZHZFL;
 				INFOPLIST_FILE = "$(SRCROOT)/Example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.io.blur;

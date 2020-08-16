@@ -52,8 +52,6 @@
     }
     return self;
 }
-
-
 -(void) defaultInitWithStyle:(UIBlurEffectStyle)style {
     self.alpha               = 1.0;
     self.contentView         = [[UIView alloc] initWithFrame:self.frame];
@@ -61,7 +59,7 @@
     self.style               = style;
     self.autoresizingMask    = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.cornerRadii         = CGSizeMake(0, 8);
-    self.openFromTop         =NO;
+    self.openFromTop         = NO;
     self.allowCloseGesture   = YES;
     self.currentRatio        = 0;
     self.originalPanFrame    = CGRectZero;
@@ -154,8 +152,6 @@
     return NO;
     
 }
-
-
 #pragma mark - Public Properties
 
 -(void) setAllowCloseGesture:(BOOL)allowCloseGesture {
@@ -191,105 +187,146 @@
     if(self.sourceView == nil) return;
     NSParameterAssert(self.effectView);
     if (self.effectView == nil) return;
-    
     if (_delegate != nil) {
         if ([_delegate respondsToSelector:@selector(willClosePanel:)]) {
             [_delegate willClosePanel:self];
         }
     }
+    CGFloat safeRatio           = CLAMP(ratio, 0.0, 1.0);
+    const CGRect superviewFrame = self.superview.frame;
     //
     // Animate the mask (reverse).
     //
+    CGRect sourceFrame        = [self convertRect:self.sourceView.frame fromView: self.sourceView.superview];
     [self.sourceView layoutIfNeeded];
-    const CGFloat maxRadius    = ((self.superview.frame.size.height - self.superview.frame.origin.y) - _sourceView.bounds.size.height) * ratio;
-    const CGFloat minRadius    = self.sourceView.bounds.size.height * 0.5;
-    const CGPoint sourceCenter = CGPointMake(self.sourceView.frame.origin.x+self.sourceView.bounds.size.width*0.5,
-                                             self.sourceView.frame.origin.y+self.sourceView.bounds.size.height*0.5);
-    
+    const CGFloat maxRadius    = ((superviewFrame.size.height - superviewFrame.origin.y) - sourceFrame.size.height) * safeRatio;
+    const CGFloat minRadius    = sourceFrame.size.height * 0.5;
     [self.effectView fadeInEffect:self.style withDuration:duration];
-     const CGPoint sourceCenter2 = [self.sourceView.superview convertPoint:sourceCenter toView:self];
-    [self animateMaskWithCenter:sourceCenter
+    [self animateMaskWithCenter:CGPointMake(CGRectGetMidX(sourceFrame), CGRectGetMidY(sourceFrame))
                       maxRadius:maxRadius
                       minRadius:minRadius
-                          ratio:ratio
+                          ratio:safeRatio
                         reverse:YES
                        duration:duration
                        delegate:nil block:^{
-                           self.frame = CGRectZero;
-                           [self.effectView removeFromSuperview];
-                           self.effectView  = nil;
-                           if (block) {
-                               block();
-                           }
-                           if (_delegate != nil) {
-                               if ([_delegate respondsToSelector:@selector(didClosePanel:)]) {
-                                   [_delegate didClosePanel:self];
-                               }
-                           }
-                       }];
+        self.frame = CGRectZero;
+        [self.effectView removeFromSuperview];
+        self.effectView  = nil;
+        if (block) {
+            block();
+        }
+        if (_delegate != nil) {
+            if ([_delegate respondsToSelector:@selector(didClosePanel:)]) {
+                [_delegate didClosePanel:self];
+            }
+        }
+    }];
 }
-
-
 -(void) openPanel:(UIView*) sourceView duration:(NSTimeInterval) duration block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     [self openPanel:sourceView duration:duration ratio:1.0 block:block];
 }
-
-
+- (CASpringAnimation *)animateTransformRotation {
+    CASpringAnimation* springRotation = [CASpringAnimation animationWithKeyPath:@"transform.rotation.z"];
+    springRotation.toValue = [NSNumber numberWithFloat: M_PI * 2.0 /* full rotation*/];
+    springRotation.duration = 2.0f;
+    springRotation.cumulative = YES;
+    springRotation.repeatCount = INT_MAX;
+    springRotation.damping = 8;
+    return springRotation;
+}
+- (void)addSprintRotationAnimation:(NSTimeInterval)duration sourceView:(UIView *)sourceView block:(void (^)(BOOL finished))block  {
+    CASpringAnimation * springRotation = [self animateTransformRotation];
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:duration];
+    [sourceView.layer addAnimation:springRotation forKey:@"springRotation"];
+    // Callback function
+    [CATransaction setCompletionBlock:^{
+        [UIView animateWithDuration:duration
+                              delay:0
+             usingSpringWithDamping:0.7f
+              initialSpringVelocity:0.9
+                            options: UIViewAnimationOptionAutoreverse
+                         animations:^{
+            self.sourceView.transform = CGAffineTransformScale(self.sourceView.transform, 0.2, 0.2);
+        } completion:^(BOOL finished) {
+            self.sourceView.transform = CGAffineTransformIdentity;
+            block(finished);
+            [sourceView.layer removeAllAnimations];
+        }];
+    }];
+    [CATransaction commit];
+}
 -(void) openPanel:(UIView*) sourceView duration:(NSTimeInterval) duration ratio:(CGFloat) ratio block:(void (^)(void))block {
     NSParameterAssert(sourceView);
     if(sourceView == nil) return;
     
-    self.currentRatio         = CLAMP(ratio, 0.0, 1.0);
+    const CGFloat safeRatio   = CLAMP(ratio, 0.0, 1.0);
     self.animationDurationPan = duration;
     self.sourceView           = sourceView;
-    self.openFromTop          = sourceView.frame.origin.y < self.superview.frame.size.height*0.5;
     
+    CGRect sourceFrame        = [self convertRect:sourceView.frame fromView: sourceView.superview];
+    self.openFromTop          = sourceView.frame.origin.y < self.superview.frame.size.height*0.5; // self.currentRatio
+    
+    [self.sourceView layoutIfNeeded];
+    const CGRect superviewFrame = self.superview.frame;
+    const CGFloat maxRadius     = superviewFrame.size.height * safeRatio;
+    const CGFloat minRadius     = sourceView.bounds.size.height * 0.5;
+    
+    if (sourceView.frame.size.height > maxRadius * 0.5) {
+        [self addSprintRotationAnimation:duration sourceView: sourceView block:^(BOOL finished){
+            
+        }];
+        return;
+    }
+    CGPoint sourceCenter  = CGPointZero;
+    if (self.openFromTop) {
+        const CGFloat panelTopTargetFrameHeight = superviewFrame.origin.y + superviewFrame.size.height * safeRatio;
+        self.frame  = CGRectMake(superviewFrame.origin.x,
+                                 superviewFrame.origin.y ,
+                                 superviewFrame.size.width,
+                                 panelTopTargetFrameHeight);
+        sourceCenter  = CGPointMake(CGRectGetMidX(sourceFrame), CGRectGetMidY(sourceFrame));
+    } else {
+        const CGFloat panelBottomTargetFrameHeight = superviewFrame.size.height * safeRatio;
+        self.frame  = CGRectMake(superviewFrame.origin.x,
+                                 superviewFrame.origin.y + superviewFrame.size.height - panelBottomTargetFrameHeight ,
+                                 superviewFrame.size.width,
+                                 panelBottomTargetFrameHeight);
+        //
+        // Calculate the center position for other ratios than 1.0
+        //
+        sourceCenter = CGPointMake(CGRectGetMidX(sourceFrame),
+                                   (CGRectGetMidY(sourceFrame)  * safeRatio) - sourceFrame.size.height * 0.5 );
+    }
+    self.currentRatio = safeRatio;
+    self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
+    [self layoutIfNeeded];
+    [self.effectView fadeInEffect:self.style withDuration:duration];
     if (_delegate != nil) {
         if([_delegate respondsToSelector:@selector(willOpenPanel:)]) {
             [_delegate willOpenPanel:self];
         }
     }
-    
-    self.effectView = [self addViewWithBlur:self.contentView style:self.style addConstrainst:YES];
-    [self layoutIfNeeded];
-    
-    
-    [self.sourceView layoutIfNeeded];
-    const CGRect superviewFrame = self.superview.frame;
-    const CGFloat maxRadius     = superviewFrame.size.height * self.currentRatio;
-    const CGFloat minRadius     = sourceView.bounds.size.height * 0.5;
-    const CGPoint sourceCenter  = CGPointMake(sourceView.frame.origin.x+sourceView.bounds.size.width*0.5,
-                                              sourceView.frame.origin.y+sourceView.bounds.size.height*0.5);
-    if (self.openFromTop) {
-        const CGFloat newHeight =  superviewFrame.origin.y + superviewFrame.size.height * self.currentRatio;
-        self.frame  = CGRectMake(superviewFrame.origin.x, superviewFrame.origin.y , superviewFrame.size.width, newHeight);
-    } else {
-        const CGFloat newHeight = superviewFrame.size.height * self.currentRatio;
-        self.frame  = CGRectMake(superviewFrame.origin.x, superviewFrame.origin.y + superviewFrame.size.height - newHeight , superviewFrame.size.width, newHeight);;
-    }
-    
-    [self.effectView fadeInEffect:self.style withDuration:duration];
-    [self animateMaskWithCenter: sourceCenter
+    [self animateMaskWithCenter:sourceCenter
                       maxRadius:maxRadius
                       minRadius:minRadius
-                          ratio:self.currentRatio
+                          ratio:safeRatio
                         reverse:NO
                        duration:duration
                        delegate:nil
                           block:^{
-                              if (block) {
-                                  block();
-                              }
-                              if (_delegate != nil) {
-                                  if([_delegate respondsToSelector:@selector(didOpenPanel:)]) {
-                                      [_delegate didOpenPanel:self];
-                                  }
-                              }
-                          }];
+        if (block) {
+            block();
+        }
+        if (_delegate != nil) {
+            if([_delegate respondsToSelector:@selector(didOpenPanel:)]) {
+                [_delegate didOpenPanel:self];
+            }
+        }
+    }];
 }
-
 -(void) handlePanGesture:(UIPanGestureRecognizer*)gestureRecognizer {
     if (![self isOpen]) {
         return;
@@ -312,7 +349,7 @@
                                                  newOriginY ,
                                                  _originalPanFrame.size.width,
                                                  _originalPanFrame.size.height);
-
+                
             } else {
                 _lastChangePanFrame = CGRectMake(_originalPanFrame.origin.x,
                                                  _originalPanFrame.origin.y,
@@ -327,9 +364,8 @@
                   initialSpringVelocity:0.5
                                 options:0
                              animations:^{
-                                 [self.effectView layoutIfNeeded];
-                             } completion:nil];
-            
+                [self.effectView layoutIfNeeded];
+            } completion:nil];
             
             break;
         }
@@ -357,22 +393,22 @@
             
             if (panOffset > 0){
                 self.effectView.frame = targetFrame;
-//                [UIView animateWithDuration:0.5f
-//                                      delay:0
-//                     usingSpringWithDamping:0.25f
-//                      initialSpringVelocity:0.5
-//                                    options:0
-//                                 animations:^{
-//                                     [self.effectView layoutIfNeeded];
-//                                 } completion:nil];
+                //                [UIView animateWithDuration:0.5f
+                //                                      delay:0
+                //                     usingSpringWithDamping:0.25f
+                //                      initialSpringVelocity:0.5
+                //                                    options:0
+                //                                 animations:^{
+                //                                     [self.effectView layoutIfNeeded];
+                //                                 } completion:nil];
                 [UIView animateWithDuration:0.7
                                       delay:0
                      usingSpringWithDamping:0.6f
                       initialSpringVelocity:0
                                     options:UIViewAnimationOptionCurveLinear
                                  animations:^{
-                                     [self.effectView layoutIfNeeded];
-                                 } completion:nil];
+                    [self.effectView layoutIfNeeded];
+                } completion:nil];
                 if (panOffset > (self.effectView.bounds.size.height * self.minimunPanFactor)) { // %
                     //
                     // Set animation duration commensurate with how far it has to be animated (so the speed is same regardless of distance
@@ -393,8 +429,8 @@
                           initialSpringVelocity:0
                                         options:UIViewAnimationOptionCurveEaseInOut
                                      animations:^{
-                                         [self.effectView layoutIfNeeded];
-                                     } completion:nil];
+                        [self.effectView layoutIfNeeded];
+                    } completion:nil];
                 }
             }
             

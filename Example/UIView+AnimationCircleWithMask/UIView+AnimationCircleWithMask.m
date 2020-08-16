@@ -35,13 +35,7 @@
     UIBezierPath * maskPath     = [UIBezierPath new];
     UIBezierPath * circlePath   = [UIBezierPath new];
     
- 
 
-    //
-    // Calculate the center position for other ratios than 1.0
-    //
-    
-    center = CGPointMake(center.x ,  center.y * ratio);
     
     //
     // Create the paths
